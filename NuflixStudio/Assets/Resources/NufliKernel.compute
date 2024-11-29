@@ -1,0 +1,226 @@
+#pragma kernel MidIdealScatter
+#pragma kernel MidIdealGather
+#pragma kernel BugIdeal
+
+StructuredBuffer<int> Pixels;
+StructuredBuffer<int> ColorDistances;
+RWStructuredBuffer<int> BitmapColors;
+RWStructuredBuffer<int> UnderlayColors;
+RWStructuredBuffer<int> BugColors;
+RWStructuredBuffer<int> MidDeltas;
+RWStructuredBuffer<int> MidPaper;
+RWStructuredBuffer<int> MidInk;
+
+[numthreads(6, 10, 16)]
+void MidIdealScatter(uint3 id : SV_DispatchThreadID)
+{
+    const int IntMax = 2147483647;
+    const int ScreenWidth = 320;
+    const int AttributeWidth = 40;
+    const int UnderlayColumns = 6;
+    const int ColumnBlockWidth = 6;
+    const int BugBlockWidth = 3;
+
+    int column = id.x;
+    int attrY = id.y;
+    int attrX = column * ColumnBlockWidth + BugBlockWidth;
+    int attrBase = attrY * AttributeWidth + attrX;
+    int pixelY = attrY << 1;
+    int pixelBase = pixelY * ScreenWidth + (attrX << 3);
+    int underlayBase = (pixelY * UnderlayColumns + column) << 8;
+    int bestPapers = 0;
+    int bestInks = 0;
+    int underlayCol1 = id.z & 0xf;
+    int underlayCol2 = id.z >> 4;
+
+    int curSpanD = 0;
+    for (int x = 0; x < ColumnBlockWidth; x++)
+    {
+        int bestCharD = IntMax;
+        int bestCharAttr = 0;
+        for (int attr = 0; attr < 256; attr++)
+        {
+            int ink = attr >> 4;
+            int paper = attr & 0xf;
+            int curCharD = 0;
+            for (int pi = 0; pi < 8; pi++)
+            {
+                if (curCharD > bestCharD)
+                {
+                    break;
+                }
+                int bestPatD = IntMax;
+                int pix = pixelBase + (x << 3) + ((pi & 3) << 1) + (pi >> 2) * ScreenWidth;
+                int ds1 = Pixels[pix] << 4;
+                int ds2 = Pixels[pix + 1] << 4;
+                int underlay = pi < 4 ? underlayCol1 : underlayCol2;
+                for (int pat = 0; pat < 7; pat++)
+                {
+                    int bkg = pat < 4 ? paper : underlay;
+                    int b1 = (pat & 1) == 0 ? bkg : ink;
+                    int b2 = (pat & 2) == 0 ? bkg : ink;
+                    int d = ColorDistances[ds1 + b1] + ColorDistances[ds2 + b2] + pat;
+                    bestPatD = min(bestPatD, d);
+                }
+                curCharD += bestPatD;
+            }
+            if (curCharD < bestCharD)
+            {
+                bestCharD = curCharD;
+                bestCharAttr = attr;
+            }
+        }
+        curSpanD += bestCharD;
+        bestInks |= (bestCharAttr >> 4) << (x << 2);
+        bestPapers |= (bestCharAttr & 0xf) << (x << 2);
+    }
+
+    int i = underlayBase + id.z;
+    MidDeltas[i] = curSpanD;
+    MidPaper[i] = bestPapers;
+    MidInk[i] = bestInks;
+}
+
+[numthreads(6, 10, 1)]
+void MidIdealGather(uint3 id : SV_DispatchThreadID)
+{
+    const int IntMax = 2147483647;
+    const int ScreenWidth = 320;
+    const int AttributeWidth = 40;
+    const int UnderlayColumns = 6;
+    const int ColumnBlockWidth = 6;
+    const int BugBlockWidth = 3;
+
+    int column = id.x;
+    int attrY = id.y;
+    int attrX = column * ColumnBlockWidth + BugBlockWidth;
+    int attrBase = attrY * AttributeWidth + attrX;
+    int pixelY = attrY << 1;
+    int pixelBase = pixelY * ScreenWidth + (attrX << 3);
+    int underlayBase = (pixelY * UnderlayColumns + column) << 8;
+    int bestD = IntMax;
+    int bestPapers = 0;
+    int bestInks = 0;
+    int bestUnderlay = 0;
+
+    for (int underlay = 0; underlay < 256; underlay++)
+    {
+        int i = underlayBase + underlay;
+        int d = MidDeltas[i];
+        if (d < bestD)
+        {
+            bestD = d;
+            bestPapers = MidPaper[i];
+            bestInks = MidInk[i];
+            bestUnderlay = underlay;
+        }
+    }
+
+    underlayBase >>= 8;
+    UnderlayColors[underlayBase] = bestUnderlay & 0xf;
+    UnderlayColors[underlayBase + UnderlayColumns] = bestUnderlay >> 4;
+    for (int x = 0; x < ColumnBlockWidth; x++)
+    {
+        BitmapColors[attrBase + x] = (((bestInks >> (x << 2)) & 0xf) << 4) | ((bestPapers >> (x << 2)) & 0xf);
+    }
+}
+
+/*
+    normal:
+    pp, ip, pi, ii, ph, hp, ih, hi, hh,
+    11, i1, 1i, h1, 1h,
+    22, i2, 2i, h2, 2h,
+    33, i3, 3i, h3, 3h,
+
+    L: pipiphihh1i1h12i2h23i3h3
+    R: ppiihphih11i1h22i2h33i3h
+
+    bugged:
+    ii, ih, hi, hh,
+    11, i1, 1i, h1, 1h,
+    22, i2, 2i, h2, 2h,
+    33, i3, 3i, h3, 3h,
+
+    L: iihh1i1h12i2h23i3h3
+    R: ihih11i1h22i2h33i3h
+*/
+
+[numthreads(25, 1, 1)]
+void BugIdeal(uint3 id : SV_DispatchThreadID)
+{
+    const int IntMax = 2147483647;
+    const int ScreenWidth = 320;
+    const int AttributeWidth = 40;
+    const int BugBlockWidth = 3;
+    const int BugPatternWidth = 12;
+
+    int attrY = id.x;
+    int attrBase = attrY * AttributeWidth;
+    int pixelY = attrY << 1;
+    int pixelBase = pixelY * ScreenWidth;
+    int currentCols[6];
+    int bestSpanAttrs[BugBlockWidth];
+    int bestSpanD = IntMax;
+
+    int pixL[19] = { 1, 1, 2, 2, 3, 1, 3, 2, 3, 4, 1, 4, 2, 4, 5, 1, 5, 2, 5 };
+    int pixR[19] = { 1, 2, 1, 2, 3, 3, 1, 3, 2, 4, 4, 1, 4, 2, 5, 5, 1, 5, 2 };
+    int pens[19] = { 0, 1, 1, 1, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 4, 4, 4, 4, 4 };
+    currentCols[0] = 15;
+    currentCols[1] = 15;
+    for (int ch = -1; ch < 15; ch++)
+    {
+        currentCols[2] = ch;
+        for (int cm1 = -1; cm1 < 15; cm1++)
+        {
+            if (cm1 >= 0 && (ch < 0 || cm1 == ch))
+            {
+                continue;
+            }
+            currentCols[3] = cm1;
+            for (int cm2 = -1; cm2 < 15; cm2++)
+            {
+                if (cm2 >= 0 && (cm1 < 0 || cm2 == ch || cm2 <= cm1))
+                {
+                    continue;
+                }
+                currentCols[4] = cm2;
+                for (int cm3 = -1; cm3 < 15; cm3++)
+                {
+                    if (cm3 >= 0 && (cm2 < 0 || cm3 == ch || cm3 <= cm2))
+                    {
+                        continue;
+                    }
+                    currentCols[5] = cm3;
+                    int curSpanD = 0;
+                    for (int pi = 0; pi < BugPatternWidth * 2; pi++)
+                    {
+                        if (curSpanD > bestSpanD)
+                        {
+                            break;
+                        }
+                        int bestPatD = IntMax;
+                        int pix = pi < BugPatternWidth ? pixelBase + (pi << 1) : pixelBase + ((pi - BugPatternWidth) << 1) + ScreenWidth;
+                        int ds1 = Pixels[pix] << 4;
+                        int ds2 = Pixels[pix + 1] << 4;
+                        for (int pat = 0; pat < 19; pat++)
+                        {
+                            int b1 = currentCols[pixL[pat]];
+                            int b2 = currentCols[pixR[pat]];
+                            int d = ColorDistances[ds1 + b1] + ColorDistances[ds2 + b2] + pens[pat] - ((min(b1, 0) + min(b2, 0)) << 16);
+                            bestPatD = min(bestPatD, d);
+                        }
+                        curSpanD += bestPatD;
+                    }
+                    if (curSpanD < bestSpanD)
+                    {
+                        bestSpanD = curSpanD;
+                        BugColors[(attrY << 2)] = ch;
+                        BugColors[(attrY << 2) + 1] = cm1;
+                        BugColors[(attrY << 2) + 2] = cm2;
+                        BugColors[(attrY << 2) + 3] = cm3;
+                    }
+                }
+            }
+        }
+    }
+}

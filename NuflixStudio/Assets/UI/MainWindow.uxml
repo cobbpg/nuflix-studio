@@ -1,0 +1,143 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <ui:Template name="ImageView" src="project://database/Assets/UI/ImageView.uxml?fileID=9197481963319205126&amp;guid=29274a8ab15bd914b89a30077bc46a36&amp;type=3#ImageView" />
+    <Style src="project://database/Assets/UI/Style.uss?fileID=7433441132597879392&amp;guid=d0c6f9d8f2a0b374bbc80a3fa49557d1&amp;type=3#Style" />
+    <ui:VisualElement name="root" style="height: 100%; width: 100%; background-color: rgb(168, 168, 168);">
+        <ui:TabView view-data-key="StudioMode" name="tab-main" style="flex-grow: 1;">
+            <ui:Tab label="Converter" name="converter-tab" view-data-key="ConverterTab" style="flex-grow: 1; border-left-color: rgb(0, 0, 0); border-right-color: rgb(0, 0, 0); border-top-color: rgb(0, 0, 0); border-bottom-color: rgb(0, 0, 0); border-top-width: 1px;">
+                <ui:VisualElement style="flex-grow: 1; flex-direction: row;">
+                    <ui:VisualElement name="controls">
+                        <ui:VisualElement name="input-image" style="flex-direction: row; padding-left: 4px; flex-shrink: 0;">
+                            <ui:Label text="Input Image:" />
+                            <ui:Label name="input-image-name-label" text="-" style="max-width: 250px; overflow: hidden;" />
+                        </ui:VisualElement>
+                        <ui:VisualElement name="file-operations" style="flex-direction: row; margin-bottom: 6px; flex-shrink: 0;">
+                            <ui:Button text="Load Input Image" name="input-image-load-button" />
+                            <ui:Button text="Save Output" name="save-output-button" double-click-selects-word="false" />
+                        </ui:VisualElement>
+                        <ui:VisualElement name="pipeline-settings" style="flex-direction: row; padding-top: 0; padding-right: 0; padding-bottom: 0; padding-left: 0; margin-top: -5px;">
+                            <ui:Toggle name="vice-bridge-toggle" text="Enable VICE Bridge" />
+                            <ui:Toggle name="change-watcher-toggle" text="Watch Input Image" />
+                        </ui:VisualElement>
+                        <ui:VisualElement name="display-settings" style="flex-direction: row; padding-left: 3px; flex-shrink: 0;">
+                            <ui:Label text="Show Layers:" />
+                            <ui:Toggle value="false" name="show-ink-toggle" text="Ink" />
+                            <ui:Toggle value="false" name="show-sprites-toggle" text="Sprites" />
+                            <ui:Toggle value="false" name="show-paper-toggle" text="Paper" />
+                        </ui:VisualElement>
+                        <ui:VisualElement name="crop-settings" style="flex-grow: 0;">
+                            <ui:Label text="Crop Origin:" style="align-self: stretch; margin-left: 6px;" />
+                            <ui:SliderInt label="X:" name="crop-x-slider" show-input-field="true" />
+                            <ui:SliderInt label="Y:" name="crop-y-slider" show-input-field="true" />
+                        </ui:VisualElement>
+                        <ui:VisualElement style="border-left-color: rgb(0, 0, 0); border-right-color: rgb(0, 0, 0); border-top-color: rgb(0, 0, 0); border-bottom-color: rgb(0, 0, 0); border-top-width: 2px; flex-shrink: 0;" />
+                        <ui:VisualElement name="conversion-profile" style="flex-direction: row; padding-left: 4px;">
+                            <ui:Label text="Settings:" />
+                            <ui:Button text="New" name="conversion-profile-new-button" />
+                            <ui:Button text="Load" name="conversion-profile-load-button" />
+                            <ui:Button text="Save" name="conversion-profile-save-button" />
+                            <ui:Button text="Save As..." name="conversion-profile-save-as-button" />
+                        </ui:VisualElement>
+                        <ui:VisualElement name="palette-mapping-settings" style="flex-grow: 1;">
+                            <ui:RadioButtonGroup choices="Automatic,Manual" name="palette-mapping-mode" label="Palette Mapping:" />
+                            <ui:VisualElement name="automatic-palette-mapper" style="flex-grow: 1;">
+                                <ui:SliderInt label="Brightness:" high-value="100" name="brightness-slider" show-input-field="true" low-value="-100" />
+                                <ui:SliderInt label="Contrast:" high-value="100" name="contrast-slider" show-input-field="true" low-value="-100" />
+                                <ui:SliderInt label="Saturation:" high-value="100" name="saturation-slider" show-input-field="true" low-value="-100" />
+                            </ui:VisualElement>
+                            <ui:VisualElement name="manual-palette-mapper" style="max-width: 310px; flex-direction: column; flex-wrap: wrap; display: flex; overflow: hidden;" />
+                        </ui:VisualElement>
+                    </ui:VisualElement>
+                    <ui:VisualElement style="border-left-color: rgb(0, 0, 0); border-right-color: rgb(0, 0, 0); border-top-color: rgb(0, 0, 0); border-bottom-color: rgb(0, 0, 0); border-top-width: 0; border-right-width: 0; border-bottom-width: 0; border-left-width: 2px;" />
+                    <ui:VisualElement name="image-views" style="flex-direction: row; flex-wrap: wrap; flex-grow: 1;">
+                        <ui:Instance template="ImageView" name="view-input" class="converterImageView">
+                            <AttributeOverrides element-name="title" text="Original" />
+                        </ui:Instance>
+                        <ui:Instance template="ImageView" name="view-prepared" class="converterImageView">
+                            <AttributeOverrides element-name="title" text="Prepared Image" />
+                        </ui:Instance>
+                        <ui:Instance template="ImageView" name="view-result" class="converterImageView">
+                            <AttributeOverrides element-name="title" text="Final Image" />
+                        </ui:Instance>
+                        <ui:Instance template="ImageView" name="view-error" class="converterImageView">
+                            <AttributeOverrides element-name="title" text="Error Map" />
+                        </ui:Instance>
+                    </ui:VisualElement>
+                </ui:VisualElement>
+            </ui:Tab>
+            <ui:Tab label="Editor" name="editor-tab" view-data-key="EditorTab" style="border-left-color: rgb(0, 0, 0); border-right-color: rgb(0, 0, 0); border-top-color: rgb(0, 0, 0); border-bottom-color: rgb(0, 0, 0); border-top-width: 1px; flex-grow: 1;">
+                <ui:VisualElement name="project-toolbar" style="flex-direction: row;">
+                    <ui:Button text="Load" name="project-load-button" />
+                    <ui:Button text="Save" name="project-save-button" />
+                    <ui:Button text="Save As..." name="project-save-as-button" />
+                    <ui:Button text="Export" name="project-export-button" />
+                    <ui:Toggle name="vice-bridge-toggle" text="Enable VICE Bridge" />
+                    <ui:RadioButtonGroup label="Edit:" name="edit-mode-selector" choices="Free,Layers" />
+                    <ui:RadioButtonGroup label="View:" name="active-view-selector" choices="Split,Free,Layers,Result" />
+                    <ui:Toggle name="show-border-toggle" text="Show Border" />
+                    <ui:SliderInt label="Scale" high-value="4" low-value="-3" name="view-scale-slider" style="min-width: 100px;" />
+                </ui:VisualElement>
+                <ui:VisualElement name="image-toolbar" style="flex-direction: row;">
+                    <ui:VisualElement name="layer-visibility-settings" style="flex-direction: row;">
+                        <ui:Label text="Show Layers:" />
+                        <ui:Button text="I" name="toggle-ink-button" style="min-width: 30px;" />
+                        <ui:Button text="H" name="toggle-hires-button" style="min-width: 30px;" />
+                        <ui:Button text="S" name="toggle-lores-button" style="min-width: 30px;" />
+                        <ui:Button text="P" name="toggle-paper-button" style="min-width: 30px;" />
+                        <ui:Button text="Errors" name="toggle-errors-button" />
+                    </ui:VisualElement>
+                    <ui:VisualElement name="pen-settings" style="flex-direction: row;">
+                        <ui:Label text="Pen:" display-tooltip-when-elided="false" />
+                        <ui:VisualElement name="pen-layers" style="flex-grow: 1; flex-direction: row;">
+                            <ui:Button text="I" name="set-pen-ink-button" style="min-width: 30px;" />
+                            <ui:Button text="P" name="set-pen-paper-button" style="min-width: 30px;" />
+                            <ui:Button text="S" name="set-pen-sprite-button" style="min-width: 30px;" />
+                            <ui:Button text="M1" name="set-pen-m1-button" style="min-width: 30px;" />
+                            <ui:Button text="M2" name="set-pen-m2-button" style="min-width: 30px;" />
+                            <ui:Button text="M3" name="set-pen-m3-button" style="min-width: 30px;" />
+                        </ui:VisualElement>
+                        <ui:VisualElement name="pen-palette" style="flex-direction: row; margin-left: 4px;">
+                            <ui:VisualElement class="penPaletteEntry" style="flex-grow: 1;" />
+                            <ui:VisualElement class="penPaletteEntry" style="flex-grow: 1;" />
+                            <ui:VisualElement class="penPaletteEntry" style="flex-grow: 1;" />
+                            <ui:VisualElement class="penPaletteEntry" style="flex-grow: 1;" />
+                            <ui:VisualElement class="penPaletteEntry" style="flex-grow: 1;" />
+                            <ui:VisualElement class="penPaletteEntry" style="flex-grow: 1;" />
+                            <ui:VisualElement class="penPaletteEntry" style="flex-grow: 1;" />
+                            <ui:VisualElement class="penPaletteEntry" style="flex-grow: 1;" />
+                            <ui:VisualElement class="penPaletteEntry" style="flex-grow: 1;" />
+                            <ui:VisualElement class="penPaletteEntry" style="flex-grow: 1;" />
+                            <ui:VisualElement class="penPaletteEntry" style="flex-grow: 1;" />
+                            <ui:VisualElement class="penPaletteEntry" style="flex-grow: 1;" />
+                            <ui:VisualElement class="penPaletteEntry" style="flex-grow: 1;" />
+                            <ui:VisualElement class="penPaletteEntry" style="flex-grow: 1;" />
+                            <ui:VisualElement class="penPaletteEntry" style="flex-grow: 1;" />
+                            <ui:VisualElement class="penPaletteEntry" style="flex-grow: 1;" />
+                        </ui:VisualElement>
+                    </ui:VisualElement>
+                </ui:VisualElement>
+                <ui:VisualElement name="image-editor" focusable="true" style="flex-grow: 1; border-top-color: rgb(0, 0, 0); border-top-width: 1px;" />
+            </ui:Tab>
+        </ui:TabView>
+        <ui:VisualElement name="palette-picker" style="position: absolute; right: 0; left: 0; bottom: 0; top: 0; width: 100%; height: 100%; display: none; visibility: visible;">
+            <ui:VisualElement name="palette-container" style="flex-wrap: wrap; border-left-color: rgb(0, 0, 0); border-right-color: rgb(0, 0, 0); border-top-color: rgb(0, 0, 0); border-bottom-color: rgb(0, 0, 0); border-top-width: 1px; border-right-width: 1px; border-bottom-width: 1px; border-left-width: 1px; flex-direction: row; width: 202px; height: 102px; max-width: 202px; max-height: 102px; position: absolute; bottom: auto; left: 0; right: auto; top: 0;">
+                <ui:VisualElement class="palettePickerEntry" />
+                <ui:VisualElement class="palettePickerEntry" />
+                <ui:VisualElement class="palettePickerEntry" />
+                <ui:VisualElement class="palettePickerEntry" />
+                <ui:VisualElement class="palettePickerEntry" />
+                <ui:VisualElement class="palettePickerEntry" />
+                <ui:VisualElement class="palettePickerEntry" />
+                <ui:VisualElement class="palettePickerEntry" />
+                <ui:VisualElement class="palettePickerEntry" />
+                <ui:VisualElement class="palettePickerEntry" />
+                <ui:VisualElement class="palettePickerEntry" />
+                <ui:VisualElement class="palettePickerEntry" />
+                <ui:VisualElement class="palettePickerEntry" />
+                <ui:VisualElement class="palettePickerEntry" />
+                <ui:VisualElement class="palettePickerEntry" />
+                <ui:VisualElement class="palettePickerEntry" />
+            </ui:VisualElement>
+        </ui:VisualElement>
+        <ui:Label text="Not enough time to multiplex sprites!" name="sprite-move-warning-label" enable-rich-text="false" picking-mode="Ignore" style="background-color: rgba(255, 0, 0, 0.66); align-self: stretch; -unity-text-align: upper-center; margin-top: 0; margin-right: 0; margin-bottom: 0; margin-left: 0; padding-top: 8px; padding-right: 8px; padding-bottom: 8px; padding-left: 8px; font-size: 28px; color: rgb(255, 255, 255); border-left-color: rgb(255, 0, 0); border-right-color: rgb(255, 0, 0); border-top-color: rgb(255, 0, 0); border-bottom-color: rgb(255, 0, 0); border-top-width: 4px; border-bottom-width: 4px; display: none; position: absolute; left: 0; right: 0; top: 50%;" />
+    </ui:VisualElement>
+</ui:UXML>

@@ -1,0 +1,7 @@
+<engine:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:engine="UnityEngine.UIElements" xmlns:editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <engine:VisualElement name="root" style="margin-top: 0; margin-right: 18px; margin-bottom: 0; margin-left: 4px; align-items: stretch; flex-direction: row;">
+        <engine:VisualElement name="source" style="background-color: rgb(255, 255, 255); align-self: center; border-left-color: rgb(0, 0, 0); border-right-color: rgb(0, 0, 0); border-top-color: rgb(0, 0, 0); border-bottom-color: rgb(0, 0, 0); border-top-width: 1px; border-right-width: 1px; border-bottom-width: 1px; border-left-width: 1px; width: 30px; height: 20px;" />
+        <engine:Label text="→" style="-unity-font-style: bold; font-size: 18px; -unity-text-align: upper-center; margin-top: 0; margin-right: 3px; margin-bottom: 0; margin-left: 3px; padding-top: 0; padding-right: 0; padding-bottom: 0; padding-left: 0;" />
+        <engine:VisualElement name="target" style="background-color: rgb(255, 255, 255); align-self: center; width: 30px; height: 20px; border-left-color: rgb(0, 0, 0); border-right-color: rgb(0, 0, 0); border-top-color: rgb(0, 0, 0); border-bottom-color: rgb(0, 0, 0); border-top-width: 1px; border-right-width: 1px; border-bottom-width: 1px; border-left-width: 1px;" />
+    </engine:VisualElement>
+</engine:UXML>

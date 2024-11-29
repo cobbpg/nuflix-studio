@@ -1,0 +1,107 @@
+.unity-text-element {
+    -unity-font-style: bold;
+    align-self: center;
+}
+
+.unity-base-field__label {
+    min-width: auto;
+}
+
+.unity-button {
+    padding-top: 4px;
+    padding-bottom: 4px;
+    padding-right: 8px;
+    padding-left: 8px;
+}
+
+.unity-toggle__input {
+}
+
+.unity-toggle__text {
+    padding-left: 3px;
+    padding-bottom: 0;
+}
+
+.unity-base-slider__drag-container {
+    margin-bottom: -4px;
+}
+
+.unity-radio-button-group__container {
+    flex-grow: 1;
+    padding-top: 5px;
+}
+
+.unity-radio-button__text {
+    padding-left: 3px;
+}
+
+#automatic-palette-mapper .unity-base-field__label {
+    min-width: 100px;
+}
+
+.palettePickerEntry {
+    border-left-color: rgb(0, 0, 0);
+    border-right-color: rgb(0, 0, 0);
+    border-top-color: rgb(0, 0, 0);
+    border-bottom-color: rgb(0, 0, 0);
+    border-top-width: 1px;
+    border-right-width: 1px;
+    border-bottom-width: 1px;
+    border-left-width: 1px;
+    width: 50px;
+    height: 25px;
+}
+
+.converterImageView {
+    width: 50%;
+    height: 50%;
+    padding-top: 4px;
+    padding-right: 4px;
+    padding-bottom: 4px;
+    padding-left: 4px;
+}
+
+.converterImageView > #root {
+    flex-grow: 1;
+}
+
+#unity-tab-view__content-container {
+    flex-grow: 1;
+}
+
+#unity-tab__content-container {
+    flex-grow: 1;
+}
+
+#unity-radio-button-group__container {
+    flex-direction: row;
+}
+
+.activated {
+    background-color: rgb(0, 106, 166);
+}
+
+.activated:hover {
+    background-color: rgb(27, 136, 197);
+}
+
+.penPaletteEntry {
+    min-width: 32px;
+    border-left-color: rgb(0, 0, 0);
+    border-right-color: rgb(0, 0, 0);
+    border-top-color: rgb(0, 0, 0);
+    border-bottom-color: rgb(0, 0, 0);
+    border-top-width: 1px;
+    border-right-width: 1px;
+    border-bottom-width: 1px;
+    border-left-width: 1px;
+    max-height: 27px;
+    margin-top: 2px;
+}
+
+.selectedPen {
+    border-left-color: rgb(255, 255, 255);
+    border-right-color: rgb(255, 255, 255);
+    border-top-color: rgb(255, 255, 255);
+    border-bottom-color: rgb(255, 255, 255);
+}
