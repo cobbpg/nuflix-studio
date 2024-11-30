@@ -6,6 +6,8 @@ NUFLIX Studio is a system to convert images into C64 executables that try to rep
 - [NUFLIX Studio Video demonstration](https://www.youtube.com/watch?v=8amfX50ubeE)
 - [Manual](manual/manual.md)
 
+Head to the [Releases](https://github.com/cobbpg/nuflix-studio/releases) section for the binaries.
+
 ## Editor Setup
 
 The UI is implemented using [UI Toolkit](https://docs.unity3d.com/Documentation/Manual/UIElements.html), and it is set up in such a way that it can be used within the editor without having to press play. The window can be opened from the menu via `Window → NUFLIX Studio`, and it's ready to use straight away. It is recommended to right click the title of the tab and turn on `UI Toolkit Live Reload`, which will cause the window to pick up any changes to the UI structure immediately. The window is defined in `Assets/UI/MainWindow.uxml`.
@@ -13,3 +15,9 @@ The UI is implemented using [UI Toolkit](https://docs.unity3d.com/Documentation/
 The main window is implemented in the `MainWindowLogic` class. In builds it is driven via the `RuntimeMainWindow` wrapper, while the editor window is set up by the `EditorMainWindow` class. There's limited support for retaining some state during hot reloading, so whenever the code is modified, the editor will reload the same file and remember conversion settings. However, it doesn't retain edits to the picture. See the `MainWindowLogic.RestoreAfterHotswapping()` method for details.
 
 The two main screens are defined by the `ConverterPane` and `EditorPane` classes, while `MainWindowLogic` acts as the glue between them, and manages the image conversion pipeline.
+
+## Displayer
+
+The source code for the displayer running on the C64 can be found in the [displayer](displayer) directory with the name `nuflix-displayer.asm`. It can be built using [Kick Assembler](www.theweb.dk/KickAssembler/), which will generate a file called `nufli-template.bin`. Copy this file into the `Settings` directory of NUFLIX Studio over the existing one, and subsequent conversions will use it right away.
+
+The source for the original NUFLI displayer is also included in the file `nufli-displayer.asm` as a courtesy. Note that NUFLIX studio cannot use the template generated from this file.
