@@ -15,6 +15,7 @@ public class MainWindowLogic : ScriptableObject
     [SerializeField] private EditorPaneAssets _editorPaneAssets;
 
     public const string SettingsDir = "Settings";
+    private const string LogFile = "nuflix-log.txt";
 
     public TabView MainTabView { get; private set; }
     private VisualElement _root;
@@ -74,6 +75,8 @@ public class MainWindowLogic : ScriptableObject
 
     public void Init(VisualElement root)
     {
+        File.Delete(LogFile);
+        KeyBindings.Load();
         MonitorConnection = new();
         Palette = Palette.ReadFromVpl($"{SettingsDir}/palette.vpl");
 
@@ -91,6 +94,12 @@ public class MainWindowLogic : ScriptableObject
 #if UNITY_EDITOR
         RestoreAfterHotswapping();
 #endif
+    }
+
+    public static void Log(string message)
+    {
+        Debug.Log(message);
+        File.AppendAllText(LogFile, message + "\n");
     }
 
     private void OnActiveTabChanged(Tab oldTab, Tab newTab)

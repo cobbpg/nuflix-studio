@@ -492,131 +492,118 @@ public class EditorPane
             return;
         }
         Pen? targetPen = DirectlyEditing && _viewMode == EditorViewMode.Layers ? evt.shiftKey ? Pen.Ink : evt.ctrlKey ? Pen.Paper : evt.altKey ? Pen.Multi1 : Pen.Sprite : null;
-        switch (evt.keyCode)
+        switch (KeyBindings.GetCommand(evt.keyCode, evt.shiftKey, evt.actionKey, evt.altKey))
         {
-            case KeyCode.F1:
-                if (evt.shiftKey)
-                {
-                    ToggleLayer(ref _showInkLayer);
-                }
-                else
-                {
-                    SetPen(Pen.Ink);
-                }
+            case Command.PerformUndo:
+                _main.PerformUndoRedo(false);
                 break;
-            case KeyCode.F2:
-                if (evt.shiftKey)
-                {
-                    ToggleLayer(ref _showHiresSpriteLayer);
-                }
-                else
-                {
-                    SetPen(Pen.Paper);
-                }
+            case Command.PerformRedo:
+                _main.PerformUndoRedo(true);
                 break;
-            case KeyCode.F3:
-                if (evt.shiftKey)
-                {
-                    ToggleLayer(ref _showLoresSpriteLayer);
-                }
-                else
-                {
-                    SetPen(Pen.Sprite);
-                }
-                break;
-            case KeyCode.F4:
-                if (evt.shiftKey)
-                {
-                    ToggleLayer(ref _showPaperLayer);
-                }
-                else
-                {
-                    SetPen(Pen.Multi1);
-                }
-                break;
-            case KeyCode.F5:
-                SetPen(Pen.Multi2);
-                break;
-            case KeyCode.F6:
-                SetPen(Pen.Multi3);
-                break;
-            case KeyCode.F8:
-                ToggleLayer(ref _showErrors);
-                break;
-            case KeyCode.F9:
+            case Command.SetViewModeSplit:
                 SetViewMode(EditorViewMode.Split);
                 break;
-            case KeyCode.F10:
+            case Command.SetViewModeFree:
                 SetViewMode(EditorViewMode.Free);
                 break;
-            case KeyCode.F11:
+            case Command.SetViewModeLayers:
                 SetViewMode(EditorViewMode.Layers);
                 break;
-            case KeyCode.F12:
+            case Command.SetViewModeResult:
                 SetViewMode(EditorViewMode.Result);
                 break;
-            case KeyCode.PageUp:
+            case Command.ZoomIn:
                 if (_viewScale < _viewScaleSlider.highValue)
                 {
                     SetViewScale(_viewScale + 1);
                 }
                 break;
-            case KeyCode.PageDown:
+            case Command.ZoomOut:
                 if (_viewScale > _viewScaleSlider.lowValue)
                 {
                     SetViewScale(_viewScale - 1);
                 }
                 break;
-            case KeyCode.Alpha1:
+            case Command.ToggleInkLayer:
+                ToggleLayer(ref _showInkLayer);
+                break;
+            case Command.ToggleHiresSpriteLayer:
+                ToggleLayer(ref _showHiresSpriteLayer);
+                break;
+            case Command.ToggleLoresSpriteLayer:
+                ToggleLayer(ref _showLoresSpriteLayer);
+                break;
+            case Command.TogglePaperLayer:
+                ToggleLayer(ref _showPaperLayer);
+                break;
+            case Command.ToggleErrorComparison:
+                ToggleLayer(ref _showErrors);
+                break;
+            case Command.SelectPenInk:
+                SetPen(Pen.Ink);
+                break;
+            case Command.SelectPenPaper:
+                SetPen(Pen.Paper);
+                break;
+            case Command.SelectPenSprite:
+                SetPen(Pen.Sprite);
+                break;
+            case Command.SelectPenMulti1:
+                SetPen(Pen.Multi1);
+                break;
+            case Command.SelectPenMulti2:
+                SetPen(Pen.Multi2);
+                break;
+            case Command.SelectPenMulti3:
+                SetPen(Pen.Multi3);
+                break;
+            case Command.SetColor00:
                 SetActiveColor(0, targetPen);
                 break;
-            case KeyCode.Alpha2:
+            case Command.SetColor01:
                 SetActiveColor(1, targetPen);
                 break;
-            case KeyCode.Alpha3:
+            case Command.SetColor02:
                 SetActiveColor(2, targetPen);
                 break;
-            case KeyCode.Alpha4:
+            case Command.SetColor03:
                 SetActiveColor(3, targetPen);
                 break;
-            case KeyCode.Alpha5:
+            case Command.SetColor04:
                 SetActiveColor(4, targetPen);
                 break;
-            case KeyCode.Alpha6:
+            case Command.SetColor05:
                 SetActiveColor(5, targetPen);
                 break;
-            case KeyCode.Alpha7:
+            case Command.SetColor06:
                 SetActiveColor(6, targetPen);
                 break;
-            case KeyCode.Alpha8:
+            case Command.SetColor07:
                 SetActiveColor(7, targetPen);
                 break;
-            case KeyCode.Q:
+            case Command.SetColor08:
                 SetActiveColor(8, targetPen);
                 break;
-            case KeyCode.W:
+            case Command.SetColor09:
                 SetActiveColor(9, targetPen);
                 break;
-            case KeyCode.E:
+            case Command.SetColor10:
                 SetActiveColor(10, targetPen);
                 break;
-            case KeyCode.R:
+            case Command.SetColor11:
                 SetActiveColor(11, targetPen);
                 break;
-            case KeyCode.T:
+            case Command.SetColor12:
                 SetActiveColor(12, targetPen);
                 break;
-            case KeyCode.Y:
+            case Command.SetColor13:
                 SetActiveColor(13, targetPen);
                 break;
-            case KeyCode.U:
+            case Command.SetColor14:
                 SetActiveColor(14, targetPen);
                 break;
-            case KeyCode.I:
+            case Command.SetColor15:
                 SetActiveColor(15, targetPen);
-                break;
-            case KeyCode.Z when evt.actionKey:
-                _main.PerformUndoRedo(evt.shiftKey);
                 break;
         }
         evt.StopPropagation();

@@ -114,3 +114,15 @@ When the view is set to a single image, i.e. anything but the **Split** mode, th
 The right hand side shows the CPU time required to realise the colours on the left side. The shorter a bar, the less time is needed. The full length of the bar is 46 clock cycles per section (two scanlines). If there's not enough time to update all the colours as specified in a given section, the bar turns red. If there are some flexible updates (i.e. valid within a range of sections) that had to be dropped for good because they expired within the section, the bar turns orange. In the **Free** and **Layers** views the left side shows the desired colours specified by the user. In the **Result** view we can see the actual colours set by the executable, so we can compare visually what was changed to make everything fit.
 
 The view can be panned either by pressing the middle mouse button while dragging or using a touchpad (or any other two-dimensional mouse wheel input).
+
+## Configuration
+
+Some aspects of NUFLIX Studio can be customised via the files in the [Settings](../NuflixStudio/Settings) directory.
+
+| File | Description |
+| --- | --- |
+| keyboard.conf | Definitions of key bindings used in the editor. The default settings are tailored to a QWERTY layout, but they can be freely changed here. |
+| palette.vpl | The actual colours used both for matching input images to the C64 palette and for the optimisation process. The default is set up to mimic the PAL emulation in VICE. This file is using the VICE palette format. |
+| nufli-template.bin | The binary template for NUFLIX files for the portion starting from $2000. Contains the displayer code and some of the fixed data structures. The first few words are offsets to various parameters that need to be filled in during the export proccess. The source for this template is included in the [displayer](../displayer) directory. |
+
+If `keyboard.conf` contains errors, the program will still start up, but the affected bindings aren't going to be active. However, a file called `nuflix-log.txt` will be created with additional information about any problems encountered.
