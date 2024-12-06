@@ -984,7 +984,7 @@ public class EditorPane
             return;
         }
         _viewScale = newScale;
-        _viewPos *= ViewScale / oldScale;
+        _viewPos = (_viewPos + _sourcePixelPos) * ViewScale / oldScale - _sourcePixelPos;
         _viewScaleSlider.value = newScale;
         RefreshPixelPosition(_sourcePixelPos);
         RefreshEditorTexture();
