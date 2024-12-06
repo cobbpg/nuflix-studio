@@ -57,7 +57,7 @@ It is impossible to perform this many colour updates in general, so when the tim
 | **Edit** | Set the active editing mode.<br/>• **Free**: plot pixels freely with the chosen colour and observe the outcome; this works in all view modes, but its effect can be difficult to interpret when looking at **Layers** or **Result** (see below)<br/>• **Layers**: edit the bitmap and sprite layers and their colours directly; this only works when the **Layers** view is active |
 | **View** | Set the active view mode.<br/>• **Split** (**`F9`**): the left side shows the reference image and the right side is the result of the conversion; pixels can be plotted on the left side when free editing is enabled<br/>• **Free** (**`F10`**): only the reference image is shown<br/>• **Layers** (**`F11`**): only the layer breakdown is shown<br/>• **Result** (**`F12`**): only the resulting image is shown |
 | **Show Border** | Enable/disable the border in the editor view. Doesn't affect already set border colours, but can be convenient if you want to avoid accidentally changing them. |
-| **Scale** | Zoom level for the editor (**`Page Up/Down`**) |
+| **Scale** | Zoom level for the editor (**`Page Up/Down`** or **`Ctrl+Mouse Wheel`**) |
 | | |
 | **Show Layers** | Toggle the visibility of layers; applies only to the **Layers** view. The four layers are in the order of priority: **I**nk, **H**ires Sprite (bug area only), Multi/Underlay **S**prite, **P**aper. (**`Shift+F1-F4`**) |
 | **Errors** | Highlight differences between **Layers** and **Result** (only visible on those two views). (**`F8`**) |

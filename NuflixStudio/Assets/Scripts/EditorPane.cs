@@ -622,6 +622,11 @@ public class EditorPane
             delta.y = 0;
         }
         _lastWheelDelta = evt.delta;
+        if (evt.ctrlKey)
+        {
+            SetViewScale(clamp(_viewScale - (int)sign(delta.y), _viewScaleSlider.lowValue, _viewScaleSlider.highValue));
+            return;
+        }
         _viewPos += delta * 16;
         RefreshPixelPosition(evt.localMousePosition);
         RefreshEditorTexture();
