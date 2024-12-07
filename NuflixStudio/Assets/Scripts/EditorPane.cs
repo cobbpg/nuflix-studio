@@ -1148,27 +1148,18 @@ public class EditorPane
                         {
                             sprW -= attrW;
                         }
-                        BlitHighlight(pos + new Vector2(sprX, sprY) * pscale + new Vector2(-1, -1), new Vector2(1, pscale * sprH + 2), clipRect);
-                        BlitHighlight(pos + new Vector2(sprX + sprW, sprY) * pscale + new Vector2(0, -1), new Vector2(1, pscale * sprH + 2), clipRect);
-                        BlitHighlight(pos + new Vector2(sprX, sprY) * pscale + new Vector2(-1, -1), new Vector2(pscale * sprW + 2, 1), clipRect);
-                        BlitHighlight(pos + new Vector2(sprX, sprY + sprH) * pscale + new Vector2(-1, 0), new Vector2(pscale * sprW + 2, 1), clipRect);
+                        HighlightRectangle(clipRect, pos, pscale, sprX, sprY, sprW, sprH);
                     }
                     else
                     {
                         // Special case: the last 8 pixels of the last column have to take the next row's colour on odd rows due to timing limitations
-                        BlitHighlight(pos + new Vector2(sprX, sprY) * pscale + new Vector2(-1, -1), new Vector2(1, pscale * sprH + 2), clipRect);
-                        BlitHighlight(pos + new Vector2(sprX + sprW, sprY - 1) * pscale + new Vector2(0, -1), new Vector2(1, pscale * attrH + 2), clipRect);
-                        BlitHighlight(pos + new Vector2(sprX + sprW - attrW, sprY - 1) * pscale + new Vector2(-1, -1), new Vector2(1, pscale * sprH + 1), clipRect);
-                        BlitHighlight(pos + new Vector2(sprX, sprY) * pscale + new Vector2(-1, -1), new Vector2(pscale * (sprW - attrW) + 1, 1), clipRect);
-                        BlitHighlight(pos + new Vector2(sprX, sprY + sprH) * pscale + new Vector2(-1, 0), new Vector2(pscale * sprW + 2, 1), clipRect);
-                        BlitHighlight(pos + new Vector2(sprX + sprW - attrW, sprY - 1) * pscale + new Vector2(-1, -1), new Vector2(pscale * attrW + 2, 1), clipRect);
+                        HighlightRectangle(clipRect, pos, pscale, sprX, sprY - 1, sprW, attrH, 0b0101);
+                        HighlightRectangle(clipRect, pos, pscale, sprX, sprY, sprW - attrW, sprH, 0b1010);
+                        HighlightRectangle(clipRect, pos, pscale, sprX + sprW - attrW, sprY - 1, attrW, sprH, 0b1010);
                     }
                 }
                 SetBlitTint(Color.cyan);
-                BlitHighlight(pos + new Vector2(attrX, attrY) * pscale + new Vector2(-1, -1), new Vector2(1, pscale * attrH + 2), clipRect);
-                BlitHighlight(pos + new Vector2(attrX + attrW, attrY) * pscale + new Vector2(0, -1), new Vector2(1, pscale * attrH + 2), clipRect);
-                BlitHighlight(pos + new Vector2(attrX, attrY) * pscale + new Vector2(-1, -1), new Vector2(pscale * attrW + 2, 1), clipRect);
-                BlitHighlight(pos + new Vector2(attrX, attrY + attrH) * pscale + new Vector2(-1, 0), new Vector2(pscale * attrW + 2, 1), clipRect);
+                HighlightRectangle(clipRect, pos, pscale, attrX, attrY, attrW, attrH);
                 SetBlitTint(Color.white);
                 break;
             case EditorViewMode.Result:
@@ -1184,11 +1175,12 @@ public class EditorPane
     private void DrawSplitEditor()
     {
         var scale = ViewScale;
+        var pscale = scale * 8;
         var splitWidth = _editorTexture.width / 2;
         var rulerWidth = _assets.LeftRuler.width * scale;
         var rulerHeight = _assets.TopRuler.height * scale;
         var clipRect = Rect.MinMaxRect(rulerWidth, 0, splitWidth, _editorTexture.height);
-        _viewPos = Vector2.Min(_viewPos, new Vector2(ScreenWidth * scale * 8 - clipRect.width, ScreenHeight * scale * 8 - clipRect.height + rulerHeight));
+        _viewPos = Vector2.Min(_viewPos, new Vector2(ScreenWidth * pscale - clipRect.width, ScreenHeight * pscale - clipRect.height + rulerHeight));
         _viewPos = Vector2.Max(_viewPos, Vector2.zero);
         var viewPos = new Vector2(Mathf.Round(_viewPos.x), Mathf.Round(_viewPos.y));
         var viewPosH = Vector2.right * viewPos.x;
@@ -1196,7 +1188,7 @@ public class EditorPane
         Blit(Texture2D.whiteTexture, null, new Rect(0, 0, rulerWidth, rulerHeight), new Rect(0, 0, 1, 1));
         Blit(Texture2D.whiteTexture, null, new Rect(splitWidth, 0, rulerWidth, rulerHeight), new Rect(0, 0, 1, 1));
         var smallScale = scale < 1;
-        var rulerScale = smallScale ? scale * 8 : scale;
+        var rulerScale = smallScale ? pscale : scale;
         Blit(smallScale ? _assets.TopRulerSmall : _assets.TopRuler, null, new Vector2(_assets.LeftRuler.width, 0) * scale - viewPosH, rulerScale, clipRect);
         clipRect.x += splitWidth;
         Blit(smallScale ? _assets.TopRulerSmall : _assets.TopRuler, null, new Vector2(_assets.LeftRuler.width + splitWidth / scale, 0) * scale - viewPosH, rulerScale, clipRect);
@@ -1206,9 +1198,20 @@ public class EditorPane
         Blit(smallScale ? _assets.LeftRulerSmall : _assets.LeftRuler, null, new Vector2(splitWidth / scale, _assets.TopRuler.height) * scale - viewPosV, scale, clipRect);
         clipRect = Rect.MinMaxRect(rulerWidth, rulerHeight, splitWidth, _editorTexture.height);
         var pos = new Vector2(rulerWidth, rulerHeight) - viewPos;
-        Blit(_main.PreparedImage, null, pos, scale * 8, clipRect);
+        Blit(_main.PreparedImage, null, pos, pscale, clipRect);
         clipRect.x += splitWidth;
-        Blit(_main.ResultImage, null, pos + Vector2.right * splitWidth, scale * 8, clipRect);
+        pos.x += splitWidth;
+        Blit(_main.ResultImage, null, pos, pscale, clipRect);
+        HighlightRectangle(clipRect, pos, pscale, Mathf.FloorToInt(_targetPixelPos.x), Mathf.FloorToInt(_targetPixelPos.y), 1, 1);
+    }
+
+    private void HighlightRectangle(Rect clipRect, Vector2 offset, float pixelScale, int x, int y, int w, int h, int sides = 0b1111)
+    {
+        // Sides bits in order: left, right, top, bottom
+        if ((sides & 0b1000) != 0) BlitHighlight(offset + new Vector2(x, y) * pixelScale + new Vector2(-1, -1), new Vector2(1, pixelScale * h + 2), clipRect);
+        if ((sides & 0b0100) != 0) BlitHighlight(offset + new Vector2(x + w, y) * pixelScale + new Vector2(0, -1), new Vector2(1, pixelScale * h + 2), clipRect);
+        if ((sides & 0b0010) != 0) BlitHighlight(offset + new Vector2(x, y) * pixelScale + new Vector2(-1, -1), new Vector2(pixelScale * w + 2, 1), clipRect);
+        if ((sides & 0b0001) != 0) BlitHighlight(offset + new Vector2(x, y + h) * pixelScale + new Vector2(-1, 0), new Vector2(pixelScale * w + 2, 1), clipRect);
     }
 
     private void BlitHighlight(Vector2 pos, Vector2 scale, Rect clipRect)
