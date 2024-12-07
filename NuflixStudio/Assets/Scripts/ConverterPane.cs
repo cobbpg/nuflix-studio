@@ -344,12 +344,21 @@ public class ConverterPane
         {
             UnityEngine.Object.DestroyImmediate(_main.InputImage);
         }
-        _main.InputImage = new Texture2D(1, 1);
-        if (!ImageConversion.LoadImage(_main.InputImage, bytes))
+        var inputImage = new Texture2D(1, 1);
+        if (!ImageConversion.LoadImage(inputImage, bytes))
         {
             Debug.LogWarning($"Image at {_inputImagePath} couldn't be loaded.");
             return;
         }
+        if (inputImage.format != TextureFormat.RGBA32)
+        {
+            var inputImageRgba = new Texture2D(inputImage.width, inputImage.height, TextureFormat.RGBA32, false);
+            inputImageRgba.SetPixels32(inputImage.GetPixels32());
+            inputImageRgba.Apply();
+            UnityEngine.Object.DestroyImmediate(inputImage);
+            inputImage = inputImageRgba;
+        }
+        _main.InputImage = inputImage;
         _main.ClearUndoStack();
         RefreshInputImageNameLabel();
         ShowImage("view-input", _main.InputImage);
