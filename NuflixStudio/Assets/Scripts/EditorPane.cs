@@ -1040,34 +1040,47 @@ public class EditorPane
         var scale = ViewScale;
         var pscale = scale * 8;
         var headerHeight = _assets.TopRuler.height * scale;
-        var clipRect = Rect.MinMaxRect((_assets.LeftHeader.width + _assets.LeftRuler.width) * scale, 0, _editorTexture.width - RightHeaderWidth, _editorTexture.height);
-        _viewPos = Vector2.Min(_viewPos, new Vector2((ScreenWidth + borderWidth) * pscale - clipRect.width, (ScreenHeight + borderWidth) * pscale - (clipRect.height - headerHeight)));
+        var cyclesX = _editorTexture.width - RightHeaderWidth;
+        var bottomY = _editorTexture.height - headerHeight;
+        var clipRect = Rect.MinMaxRect((_assets.LeftHeader.width + _assets.LeftRuler.width) * scale, 0, cyclesX - _assets.RightRuler.width * scale, bottomY);
+        _viewPos = Vector2.Min(_viewPos, new Vector2((ScreenWidth + borderWidth) * pscale - clipRect.width, (ScreenHeight + borderWidth) * pscale - clipRect.height));
         _viewPos = Vector2.Max(_viewPos, new Vector2(-borderWidth * pscale, -borderWidth * pscale));
         var viewPos = new Vector2(Mathf.Round(_viewPos.x), Mathf.Round(_viewPos.y));
         var viewPosH = Vector2.right * viewPos.x;
         var viewPosV = Vector2.up * viewPos.y;
         Blit(Texture2D.whiteTexture, null, new Rect(0, 0, _editorTexture.width, headerHeight), new Rect(0, 0, 1, 1));
         Blit(Texture2D.whiteTexture, null, new Rect(_assets.LeftHeader.width * scale, 0, _assets.LeftRuler.width * scale, _editorTexture.height), new Rect(0, 0, 1, 1));
+        Blit(Texture2D.whiteTexture, null, new Rect(clipRect.xMax, 0, _assets.RightRuler.width * scale, _editorTexture.height), new Rect(0, 0, 1, 1));
+        Blit(Texture2D.whiteTexture, null, new Rect(0, bottomY, _editorTexture.width, headerHeight), new Rect(0, 0, 1, 1));
+        var bottomRulerClipRect = clipRect;
+        bottomRulerClipRect.yMax = _editorTexture.height;
+        var rightRulerClipRect = clipRect;
+        rightRulerClipRect.min = new Vector2(_assets.LeftHeader.width, _assets.LeftHeader.height) * scale;
+        rightRulerClipRect.xMax = cyclesX;
         if (scale >= 1)
         {
             Blit(_assets.LeftHeader, null, new Vector2(0, 0), scale);
-            Blit(_assets.TopRuler, null, new Vector2(_assets.LeftHeader.width + _assets.LeftRuler.width, 0) * scale - viewPosH, scale, clipRect);
+            Blit(_assets.TopRuler, null, new Vector2((_assets.LeftHeader.width + _assets.LeftRuler.width) * scale, 0) - viewPosH, scale, clipRect);
+            Blit(_assets.BottomRuler, null, new Vector2((_assets.LeftHeader.width + _assets.LeftRuler.width) * scale, bottomY) - viewPosH, scale, bottomRulerClipRect);
             clipRect.min = new Vector2(_assets.LeftHeader.width, _assets.LeftHeader.height) * scale;
             Blit(_assets.LeftRuler, null, new Vector2(_assets.LeftHeader.width, _assets.LeftHeader.height) * scale - viewPosV, scale, clipRect);
+            Blit(_assets.RightRuler, null, new Vector2(clipRect.xMax, _assets.LeftHeader.height * scale) - viewPosV, scale, rightRulerClipRect);
         }
         else
         {
             Blit(_assets.LeftHeaderSmall, null, new Vector2(0, 0), scale);
-            Blit(_assets.TopRulerSmall, null, new Vector2(_assets.LeftHeader.width + _assets.LeftRuler.width, 0) * scale - viewPosH, pscale, clipRect);
+            Blit(_assets.HorizontalRulerSmall, null, new Vector2((_assets.LeftHeader.width + _assets.LeftRuler.width) * scale, 0) - viewPosH, pscale, clipRect);
+            Blit(_assets.HorizontalRulerSmall, null, new Vector2((_assets.LeftHeader.width + _assets.LeftRuler.width) * scale, bottomY) - viewPosH, pscale, bottomRulerClipRect);
             clipRect.min = new Vector2(_assets.LeftHeader.width, _assets.LeftHeader.height) * scale;
-            Blit(_assets.LeftRulerSmall, null, new Vector2(_assets.LeftHeader.width, _assets.LeftHeader.height) * scale - viewPosV, scale, clipRect);
+            Blit(_assets.VerticalRulerSmall, null, new Vector2(_assets.LeftHeader.width, _assets.LeftHeader.height) * scale - viewPosV, scale, clipRect);
+            Blit(_assets.VerticalRulerSmall, null, new Vector2(clipRect.xMax, _assets.LeftHeader.height * scale) - viewPosV, scale, rightRulerClipRect);
         }
         clipRect.xMin = 0;
-        Blit(_assets.RightHeader, null, new Vector2(clipRect.xMax, 0), new Vector2(RightHeaderWidth / _assets.RightHeader.width, headerHeight / _assets.RightHeader.height));
+        Blit(_assets.RightHeader, null, new Vector2(cyclesX, 0), new Vector2(RightHeaderWidth / _assets.RightHeader.width, headerHeight / _assets.RightHeader.height));
         Blit(_viewMode == EditorViewMode.Result ? ExportedBugColors : BugColors, _assets.BugColorOverlay, new Vector2(0, _assets.TopRuler.height) * scale - viewPosV, pscale, clipRect);
         Blit(_viewMode == EditorViewMode.Result ? ExportedUnderlayColors : UnderlayColors, _assets.UnderlayColorOverlay, new Vector2(32, _assets.TopRuler.height) * scale - viewPosV, pscale, clipRect);
-        var rightClipRect = new Rect(clipRect.xMax, headerHeight, RightHeaderWidth, _editorTexture.height - headerHeight);
-        Blit(CyclesHistogram, null, new Vector2(clipRect.xMax, headerHeight) - viewPosV, new Vector2(RightHeaderWidth / CyclesHistogram.width, pscale * 2), rightClipRect);
+        var rightClipRect = new Rect(cyclesX, headerHeight, RightHeaderWidth, _editorTexture.height - headerHeight);
+        Blit(CyclesHistogram, null, new Vector2(cyclesX, headerHeight) - viewPosV, new Vector2(RightHeaderWidth / CyclesHistogram.width, pscale * 2), rightClipRect);
         clipRect.xMin = (_assets.LeftHeader.width + _assets.LeftRuler.width) * scale;
         var pos = new Vector2(_assets.LeftHeader.width + _assets.LeftRuler.width, _assets.TopRuler.height) * scale - viewPos;
         if (_showBorder)
@@ -1189,13 +1202,13 @@ public class EditorPane
         Blit(Texture2D.whiteTexture, null, new Rect(splitWidth, 0, rulerWidth, rulerHeight), new Rect(0, 0, 1, 1));
         var smallScale = scale < 1;
         var rulerScale = smallScale ? pscale : scale;
-        Blit(smallScale ? _assets.TopRulerSmall : _assets.TopRuler, null, new Vector2(_assets.LeftRuler.width, 0) * scale - viewPosH, rulerScale, clipRect);
+        Blit(smallScale ? _assets.HorizontalRulerSmall : _assets.TopRuler, null, new Vector2(_assets.LeftRuler.width, 0) * scale - viewPosH, rulerScale, clipRect);
         clipRect.x += splitWidth;
-        Blit(smallScale ? _assets.TopRulerSmall : _assets.TopRuler, null, new Vector2(_assets.LeftRuler.width + splitWidth / scale, 0) * scale - viewPosH, rulerScale, clipRect);
+        Blit(smallScale ? _assets.HorizontalRulerSmall : _assets.TopRuler, null, new Vector2(_assets.LeftRuler.width + splitWidth / scale, 0) * scale - viewPosH, rulerScale, clipRect);
         clipRect = Rect.MinMaxRect(0, rulerHeight, splitWidth, _editorTexture.height);
-        Blit(smallScale ? _assets.LeftRulerSmall : _assets.LeftRuler, null, new Vector2(0, _assets.TopRuler.height) * scale - viewPosV, scale, clipRect);
+        Blit(smallScale ? _assets.VerticalRulerSmall : _assets.LeftRuler, null, new Vector2(0, _assets.TopRuler.height) * scale - viewPosV, scale, clipRect);
         clipRect.x += splitWidth;
-        Blit(smallScale ? _assets.LeftRulerSmall : _assets.LeftRuler, null, new Vector2(splitWidth / scale, _assets.TopRuler.height) * scale - viewPosV, scale, clipRect);
+        Blit(smallScale ? _assets.VerticalRulerSmall : _assets.LeftRuler, null, new Vector2(splitWidth / scale, _assets.TopRuler.height) * scale - viewPosV, scale, clipRect);
         clipRect = Rect.MinMaxRect(rulerWidth, rulerHeight, splitWidth, _editorTexture.height);
         var pos = new Vector2(rulerWidth, rulerHeight) - viewPos;
         Blit(_main.PreparedImage, null, pos, pscale, clipRect);
@@ -1308,9 +1321,11 @@ public class EditorPaneAssets
 
     [Header("Control Elements")]
     public Texture2D TopRuler;
-    public Texture2D TopRulerSmall;
+    public Texture2D BottomRuler;
+    public Texture2D HorizontalRulerSmall;
     public Texture2D LeftRuler;
-    public Texture2D LeftRulerSmall;
+    public Texture2D RightRuler;
+    public Texture2D VerticalRulerSmall;
     public Texture2D LeftHeader;
     public Texture2D LeftHeaderSmall;
     public Texture2D RightHeader;

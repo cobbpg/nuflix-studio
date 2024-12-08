@@ -24,9 +24,11 @@ MonoBehaviour:
     BugColorOverlay: {fileID: 2800000, guid: 64cbc778b4480bd4f994ec1f86022d44, type: 3}
     UnderlayColorOverlay: {fileID: 2800000, guid: ac65598d094af3546ba33b48efebbc36, type: 3}
     TopRuler: {fileID: 2800000, guid: c6c86de2b66437f4cbef20ee831d4164, type: 3}
-    TopRulerSmall: {fileID: 2800000, guid: 0b1a6e129cebf9a4896a4dbbbd06265b, type: 3}
+    BottomRuler: {fileID: 2800000, guid: 38c7d98218965554f953a9aae52bf579, type: 3}
+    HorizontalRulerSmall: {fileID: 2800000, guid: 0b1a6e129cebf9a4896a4dbbbd06265b, type: 3}
     LeftRuler: {fileID: 2800000, guid: 568a2625ba62b3b4e812429327aeacfe, type: 3}
-    LeftRulerSmall: {fileID: 2800000, guid: 7a397b02a4d390b47a9fa1db33126715, type: 3}
+    RightRuler: {fileID: 2800000, guid: eb69e1b2112ed704abe3cede9e20ba86, type: 3}
+    VerticalRulerSmall: {fileID: 2800000, guid: 7a397b02a4d390b47a9fa1db33126715, type: 3}
     LeftHeader: {fileID: 2800000, guid: 0799aee7f1ca69b498004489f8ee1d03, type: 3}
     LeftHeaderSmall: {fileID: 2800000, guid: 448bc7788fcfc884aa58ab1711f505d3, type: 3}
     RightHeader: {fileID: 2800000, guid: f9f9d69d355143a45991ac997c45f280, type: 3}
