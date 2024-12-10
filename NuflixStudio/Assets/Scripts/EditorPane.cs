@@ -73,6 +73,8 @@ public class EditorPane
     private bool _showHiresSpriteLayer = true;
     private bool _showPaperLayer = true;
     private bool _showErrors;
+
+    private VisualElement _sourcePixelColor;
     private Button _setPenInkButton;
     private Button _setPenPaperButton;
     private Button _setPenSpriteButton;
@@ -168,6 +170,7 @@ public class EditorPane
         _penPaletteContainer = imageToolbar.Q<VisualElement>("pen-palette");
         RefreshPenTools();
 
+        _sourcePixelColor = imageToolbar.Q<VisualElement>("source-pixel");
         _setPenInkButton = imageToolbar.Q<Button>("set-pen-ink-button");
         _setPenPaperButton = imageToolbar.Q<Button>("set-pen-paper-button");
         _setPenSpriteButton = imageToolbar.Q<Button>("set-pen-sprite-button");
@@ -354,6 +357,7 @@ public class EditorPane
 
     private void RefreshPenButtonColors()
     {
+        _sourcePixelColor.style.backgroundColor = Color.clear;
         SetPenButtonColor(_setPenInkButton, -1);
         SetPenButtonColor(_setPenPaperButton, -1);
         SetPenButtonColor(_setPenSpriteButton, -1);
@@ -367,6 +371,7 @@ public class EditorPane
         {
             return;
         }
+        _sourcePixelColor.style.backgroundColor = (Color)_main.Palette.Colors[_workImage.ReferencePixels[py * ScreenWidth + px]];
         var attrX = px >> 3;
         var attrY = py >> 1;
         var attr = _workImage.BitmapColors[attrY * AttributeWidth + attrX];

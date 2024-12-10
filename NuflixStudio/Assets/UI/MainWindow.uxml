@@ -86,6 +86,8 @@
                         <ui:Button text="Errors" name="toggle-errors-button" />
                     </ui:VisualElement>
                     <ui:VisualElement name="pen-settings" style="flex-direction: row;">
+                        <ui:Label text="Ref Pixel:" display-tooltip-when-elided="false" />
+                        <ui:VisualElement name="source-pixel" class="penPaletteEntry" style="flex-grow: 1;" />
                         <ui:Label text="Pen:" display-tooltip-when-elided="false" />
                         <ui:VisualElement name="pen-layers" style="flex-grow: 1; flex-direction: row;">
                             <ui:Button text="I" name="set-pen-ink-button" style="min-width: 30px;" />
