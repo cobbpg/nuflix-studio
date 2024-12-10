@@ -109,6 +109,7 @@ public class ConverterPane
         _paletteMappingTargets = new List<VisualElement>();
 
         _imageViews = root.Q<VisualElement>("image-views");
+        _imageViews.RegisterCallback<GeometryChangedEvent>(OnEditorGeometryChanged);
 
         var displaySettings = root.Q<VisualElement>("display-settings");
         var showInkToggle = displaySettings.Q<Toggle>("show-ink-toggle");
@@ -408,6 +409,30 @@ public class ConverterPane
         tex.filterMode = FilterMode.Point;
         var image = _imageViews.Q<VisualElement>(viewName).Q<VisualElement>("image");
         image.style.backgroundImage = tex;
+        RefreshImageScale(image);
+    }
+
+    private void OnEditorGeometryChanged(GeometryChangedEvent evt)
+    {
+        foreach (var imageView in _imageViews.Children())
+        {
+            RefreshImageScale(imageView.Q<VisualElement>("image"));
+        }
+    }
+
+    private void RefreshImageScale(VisualElement image)
+    {
+        var tex = image.resolvedStyle.backgroundImage.texture;
+        if (tex == null)
+        {
+            return;
+        }
+        var scaleFactor = min(image.resolvedStyle.width / tex.width, image.resolvedStyle.height / tex.height);
+        if (scaleFactor > 1)
+        {
+            scaleFactor = floor(scaleFactor);
+        }
+        image.style.backgroundSize = new BackgroundSize(tex.width * scaleFactor, tex.height * scaleFactor);
     }
 
     private void RefreshPreparedImage()
