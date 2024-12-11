@@ -75,14 +75,16 @@ It is impossible to perform this many colour updates in general, so when the tim
 
 ### Drawing
 
-In **Free** editing mode or over the border the pen just plots the active colour. Besides clicking on the palette in the pen toolbar, the active colour can be set with the following keys:
+In **Free** editing mode or over the border the pen just plots the active colour. There's a primary and a secondary colour assigned to the left and right mouse buttons, respectively. They can be set either by clicking on the palette in the pen toolbar with the corresponding button, or with the following keys (hold **`Shift`** to set the secondary colour):
 
 | Codes | | | | | | | | |
 | --- | :-: | :-: | :-: | :-: | :-: | :-: | :-: | :-: |
 | 0-7  | **`1`** | **`2`** | **`3`** | **`4`** | **`5`** | **`6`** | **`7`** | **`8`** |
 | 8-15 | **`Q`** | **`W`** | **`E`** | **`R`** | **`T`** | **`Y`** | **`U`** | **`I`** |
 
-The border colour is changed only for the section under the cursor with the left button. The right button performs a flood fill over all connected sections with the same colour.
+The currently selected colours are marked with the letters **L** and **R** in the palette depending on which button they are assigned to. If both buttons are assigned the same colour, the **R** remains hidden.
+
+The border colour is changed only for the section under the cursor. Holding **`Shift`** while clicking will perform flood fill over all connected sections with the same colour.
 
 In **Layers** editing mode you have to select the active layer to paint on:
 

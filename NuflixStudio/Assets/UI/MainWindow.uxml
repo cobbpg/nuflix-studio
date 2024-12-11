@@ -98,22 +98,22 @@
                             <ui:Button text="M3" name="set-pen-m3-button" style="min-width: 30px;" />
                         </ui:VisualElement>
                         <ui:VisualElement name="pen-palette" style="flex-direction: row; margin-left: 4px;">
-                            <ui:VisualElement class="penPaletteEntry" style="flex-grow: 1;" />
-                            <ui:VisualElement class="penPaletteEntry" style="flex-grow: 1;" />
-                            <ui:VisualElement class="penPaletteEntry" style="flex-grow: 1;" />
-                            <ui:VisualElement class="penPaletteEntry" style="flex-grow: 1;" />
-                            <ui:VisualElement class="penPaletteEntry" style="flex-grow: 1;" />
-                            <ui:VisualElement class="penPaletteEntry" style="flex-grow: 1;" />
-                            <ui:VisualElement class="penPaletteEntry" style="flex-grow: 1;" />
-                            <ui:VisualElement class="penPaletteEntry" style="flex-grow: 1;" />
-                            <ui:VisualElement class="penPaletteEntry" style="flex-grow: 1;" />
-                            <ui:VisualElement class="penPaletteEntry" style="flex-grow: 1;" />
-                            <ui:VisualElement class="penPaletteEntry" style="flex-grow: 1;" />
-                            <ui:VisualElement class="penPaletteEntry" style="flex-grow: 1;" />
-                            <ui:VisualElement class="penPaletteEntry" style="flex-grow: 1;" />
-                            <ui:VisualElement class="penPaletteEntry" style="flex-grow: 1;" />
-                            <ui:VisualElement class="penPaletteEntry" style="flex-grow: 1;" />
-                            <ui:VisualElement class="penPaletteEntry" style="flex-grow: 1;" />
+                            <ui:Label parse-escape-sequences="true" class="penPaletteEntry" style="color: rgb(255, 255, 255);" />
+                            <ui:Label parse-escape-sequences="true" class="penPaletteEntry" />
+                            <ui:Label parse-escape-sequences="true" class="penPaletteEntry" />
+                            <ui:Label parse-escape-sequences="true" class="penPaletteEntry" />
+                            <ui:Label parse-escape-sequences="true" class="penPaletteEntry" />
+                            <ui:Label parse-escape-sequences="true" class="penPaletteEntry" />
+                            <ui:Label parse-escape-sequences="true" class="penPaletteEntry" />
+                            <ui:Label parse-escape-sequences="true" class="penPaletteEntry" />
+                            <ui:Label parse-escape-sequences="true" class="penPaletteEntry" />
+                            <ui:Label parse-escape-sequences="true" class="penPaletteEntry" />
+                            <ui:Label parse-escape-sequences="true" class="penPaletteEntry" />
+                            <ui:Label parse-escape-sequences="true" class="penPaletteEntry" />
+                            <ui:Label parse-escape-sequences="true" class="penPaletteEntry" />
+                            <ui:Label parse-escape-sequences="true" class="penPaletteEntry" />
+                            <ui:Label parse-escape-sequences="true" class="penPaletteEntry" />
+                            <ui:Label parse-escape-sequences="true" class="penPaletteEntry" />
                         </ui:VisualElement>
                     </ui:VisualElement>
                 </ui:VisualElement>

@@ -82,9 +82,10 @@ public class EditorPane
     private Button _setPenMulti2Button;
     private Button _setPenMulti3Button;
 
-    private List<VisualElement> _penPalette;
+    private List<Label> _penPalette;
     private Pen _activePen;
-    private int _penColor;
+    private int _penColorPrimary;
+    private int _penColorSecondary;
 
     private LayeredImage _workImage;
     private LayeredImage _exportedImage;
@@ -185,18 +186,21 @@ public class EditorPane
         _setPenMulti3Button.clicked += () => SetPen(Pen.Multi3);
         RefreshPenButtonStyles();
 
-        _penPalette = new List<VisualElement>();
+        _penPalette = new List<Label>();
         foreach (var entry in _penPaletteContainer.Children())
         {
             var entryIndex = _penPalette.Count;
             var intensity = (entryIndex >> 3) == 0 ? 0 : 0.5f;
             entry.style.backgroundColor = (Color)_main.Palette.Colors[entryIndex];
             var index = entryIndex;
-            entry.AddManipulator(new Clickable(() => SetPenColor(index)));
+            entry.RegisterCallback<MouseDownEvent>(evt => SetPenColor(index, evt.button == 0));
             entryIndex++;
-            _penPalette.Add(entry);
+            var label = (Label)entry;
+            label.text = "";
+            _penPalette.Add(label);
         }
-        SetPenColor(_penColor);
+        SetPenColor(_penColorPrimary, true);
+        SetPenColor(_penColorSecondary, false);
     }
 
     private void LoadProject()
@@ -412,7 +416,7 @@ public class EditorPane
         button.SetEnabled(true);
     }
 
-    private void SetActiveColor(int index, Pen? pen)
+    private void SetActiveColor(int index, Pen pen)
     {
         var px = Mathf.FloorToInt(_targetPixelPos.x);
         var py = Mathf.FloorToInt(_targetPixelPos.y);
@@ -424,7 +428,7 @@ public class EditorPane
             case ImageSection.SideBorder:
             case ImageSection.TopBorder:
             case ImageSection.BottomBorder:
-                SetPenColor(index);
+                SetPenColor(index, pen == Pen.Primary);
                 return;
         }
         switch (pen)
@@ -469,21 +473,36 @@ public class EditorPane
                     }
                 }
                 break;
-            case null:
-                SetPenColor(index);
+            case Pen.Primary:
+                SetPenColor(index, true);
+                break;
+            case Pen.Secondary:
+                SetPenColor(index, false);
                 break;
         }
     }
 
-    private void SetPenColor(int index)
+    private void SetPenColor(int index, bool primary)
     {
-        SetBorderColor(_penPalette[_penColor].style, Color.black);
-        _penColor = index;
-        SetBorderColor(_penPalette[_penColor].style, Color.white);
+        var oldIndex = primary ? _penColorPrimary : _penColorSecondary;
+        if (primary)
+        {
+            _penColorPrimary = index;
+        }
+        else
+        {
+            _penColorSecondary = index;
+        }
+        RefreshPenPaletteEntry(oldIndex);
+        RefreshPenPaletteEntry(index);
     }
 
-    private void SetBorderColor(IStyle style, Color color)
+    private void RefreshPenPaletteEntry(int index)
     {
+        var label = _penPalette[index];
+        var style = label.style;
+        var color = index == _penColorPrimary || index == _penColorSecondary ? Color.white : Color.black;
+        label.text = index == _penColorPrimary ? "L" : index == _penColorSecondary ? "R" : "";
         style.borderTopColor = color;
         style.borderRightColor = color;
         style.borderBottomColor = color;
@@ -496,7 +515,7 @@ public class EditorPane
         {
             return;
         }
-        Pen? targetPen = DirectlyEditing && _viewMode == EditorViewMode.Layers ? evt.shiftKey ? Pen.Ink : evt.ctrlKey ? Pen.Paper : evt.altKey ? Pen.Multi1 : Pen.Sprite : null;
+        var targetPen = DirectlyEditing && _viewMode == EditorViewMode.Layers ? evt.shiftKey ? Pen.Ink : evt.ctrlKey ? Pen.Paper : evt.altKey ? Pen.Multi1 : Pen.Sprite : evt.shiftKey ? Pen.Secondary : Pen.Primary;
         switch (KeyBindings.GetCommand(evt.keyCode, evt.shiftKey, evt.actionKey, evt.altKey))
         {
             case Command.PerformUndo:
@@ -647,7 +666,7 @@ public class EditorPane
         var midPressed = (evt.pressedButtons & 4) != 0;
         if (leftPressed || rightPressed)
         {
-            Plot(leftPressed, true);
+            Plot(leftPressed, evt.shiftKey, true);
         }
         if (midPressed)
         {
@@ -676,7 +695,7 @@ public class EditorPane
         var rightPressed = (evt.pressedButtons & 2) != 0;
         if (leftPressed || rightPressed)
         {
-            Plot(leftPressed, false);
+            Plot(leftPressed, evt.shiftKey, false);
         }
         if (movedPixel)
         {
@@ -725,17 +744,18 @@ public class EditorPane
         return Mathf.FloorToInt(_targetPixelPos.x) != oldX || Mathf.FloorToInt(_targetPixelPos.y) != oldY;
     }
 
-    private void Plot(bool leftPressed, bool forced)
+    private void Plot(bool leftPressed, bool shiftPressed, bool forced)
     {
         var px = Mathf.FloorToInt(_targetPixelPos.x);
         var py = Mathf.FloorToInt(_targetPixelPos.y);
         var section = _workImage.GetSection(px, py);
+        var penColor = leftPressed ? _penColorPrimary : _penColorSecondary;
         switch (section)
         {
             case ImageSection.SideBorder:
             case ImageSection.TopBorder:
             case ImageSection.BottomBorder:
-                _workImage.SetBorderColor(px, py, _penColor, !leftPressed);
+                _workImage.SetBorderColor(px, py, penColor, shiftPressed);
                 _main.RefreshWorkImage();
                 return;
         }
@@ -752,11 +772,11 @@ public class EditorPane
         {
             var pixels = _main.PreparedPixels;
             var pi = py * ScreenWidth + px;
-            if (pixels[pi] == _penColor)
+            if (pixels[pi] == penColor)
             {
                 return;
             }
-            _workImage.ReferencePixels[pi] = pixels[pi] = _penColor;
+            _workImage.ReferencePixels[pi] = pixels[pi] = penColor;
             _main.RefreshPreparedImage();
             _workImage.ReoptimiseForPixel(px, py);
             _main.GenerateLayers();
@@ -1348,5 +1368,5 @@ public enum Layer
 
 public enum Pen
 {
-    Ink, Paper, Sprite, Multi1, Multi2, Multi3
+    Primary, Secondary, Ink, Paper, Sprite, Multi1, Multi2, Multi3
 }
