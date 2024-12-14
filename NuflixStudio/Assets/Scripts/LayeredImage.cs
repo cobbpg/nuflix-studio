@@ -677,10 +677,16 @@ public class LayeredImage
         {
             var px = index % ScreenWidth;
             var py = index / ScreenWidth;
+            var col = GetPixel(px, py);
+            Indices[index] = col;
+            OutputPixels[(ScreenHeight - 1 - py) * ScreenWidth + px] = col < 0 ? new Color32() : Palette[col];
+        }
+
+        public int GetPixel(int px, int py)
+        {
             var by = py >> 1;
             var bc = BitmapColors[by * AttributeWidth + (px >> 3)];
             var bp = Bitmap[py * ScreenWidth + px];
-            int col;
             if (px < MidStartX)
             {
                 var hc = BugColors[by * BugColorSlots];
@@ -688,21 +694,19 @@ public class LayeredImage
                 var mpix = py * BugSprites * SpriteWidth + SpriteWidth + (px & ~1);
                 var mp = (Bug[mpix] ? 2 : 0) | (Bug[mpix + 1] ? 1 : 0);
                 var mc = BugColors[by * BugColorSlots + mp];
-                col = bp & ShowInk ? bc >> 4 : hp & ShowHiresSprite ? hc : (mp > 0) && ShowLoresSprite ? mc : ShowPaper ? bc & 0xf : -1;
+                return bp & ShowInk ? bc >> 4 : hp & ShowHiresSprite ? hc : (mp > 0) && ShowLoresSprite ? mc : ShowPaper ? bc & 0xf : -1;
             }
             else if (px < MidEndX)
             {
                 var uy = py < ScreenHeight - 1 && (py & 1) == 1 && px >= MidEndX - 8 ? py + 1 : py;
                 var uc = UnderlayColors[uy * UnderlayColumns + ((px >> 3) - BugBlockWidth) / UnderlayBlockWidth];
                 var up = Underlay[py * UnderlayColumns * SpriteWidth + ((px - SpriteWidth) >> 1)];
-                col = bp & ShowInk ? bc >> 4 : up & ShowLoresSprite ? uc : ShowPaper ? bc & 0xf : -1;
+                return bp & ShowInk ? bc >> 4 : up & ShowLoresSprite ? uc : ShowPaper ? bc & 0xf : -1;
             }
             else
             {
-                col = bp & ShowInk ? bc >> 4 : ShowPaper ? bc & 0xf : -1;
+                return bp & ShowInk ? bc >> 4 : ShowPaper ? bc & 0xf : -1;
             }
-            Indices[index] = col;
-            OutputPixels[(ScreenHeight - 1 - py) * ScreenWidth + px] = col < 0 ? new Color32() : Palette[col];
         }
     }
 
@@ -1065,6 +1069,23 @@ public class LayeredImage
                 }
                 break;
         }
+    }
+
+    public int GetPixel(int x, int y, bool showInkLayer, bool showLoresSpriteLayer, bool showHiresSpriteLayer, bool showPaperLayer)
+    {
+        return new RenderLayersJob
+        {
+            ShowInk = showInkLayer,
+            ShowLoresSprite = showLoresSpriteLayer,
+            ShowHiresSprite = showHiresSpriteLayer,
+            ShowPaper = showPaperLayer,
+            Bitmap = Bitmap,
+            BitmapColors = BitmapColors,
+            Underlay = Underlay,
+            UnderlayColors = UnderlayColors,
+            Bug = Bug,
+            BugColors = BugColors,
+        }.GetPixel(x, y);
     }
 
     public void GetBugColorsUsed(int y, bool[] result)

@@ -418,6 +418,10 @@ public class EditorPane
 
     private void SetActiveColor(int index, Pen pen)
     {
+        if (index < 0)
+        {
+            return;
+        }
         var px = Mathf.FloorToInt(_targetPixelPos.x);
         var py = Mathf.FloorToInt(_targetPixelPos.y);
         var attrX = px >> 3;
@@ -666,7 +670,14 @@ public class EditorPane
         var midPressed = (evt.pressedButtons & 4) != 0;
         if (leftPressed || rightPressed)
         {
-            Plot(leftPressed, evt.shiftKey, true);
+            if (evt.ctrlKey)
+            {
+                Pick(leftPressed ? Pen.Primary : Pen.Secondary);
+            }
+            else
+            {
+                Plot(leftPressed, evt.shiftKey, true);
+            }
         }
         if (midPressed)
         {
@@ -742,6 +753,36 @@ public class EditorPane
         var oldY = Mathf.FloorToInt(_targetPixelPos.y);
         _targetPixelPos = (pos - new Vector2(xmin, ymin) + _viewPos) / scale / 8;
         return Mathf.FloorToInt(_targetPixelPos.x) != oldX || Mathf.FloorToInt(_targetPixelPos.y) != oldY;
+    }
+
+    private void Pick(Pen pen)
+    {
+        var px = Mathf.FloorToInt(_targetPixelPos.x);
+        var py = Mathf.FloorToInt(_targetPixelPos.y);
+        var section = _workImage.GetSection(px, py);
+        switch (section)
+        {
+            case ImageSection.SideBorder:
+            case ImageSection.TopBorder:
+            case ImageSection.BottomBorder:
+                return;
+        }
+        switch (_viewMode)
+        {
+            case EditorViewMode.Split:
+            case EditorViewMode.Free:
+                SetActiveColor(_workImage.ReferencePixels[py * ScreenWidth + px], pen);
+                break;
+            case EditorViewMode.Layers:
+                SetActiveColor(_workImage.GetPixel(px, py, _showInkLayer, _showLoresSpriteLayer, _showHiresSpriteLayer, _showPaperLayer), pen);
+                break;
+            case EditorViewMode.Result:
+                if (_exportedImage != null)
+                {
+                    SetActiveColor(_exportedImage.GetPixel(px, py, true, true, true, true), pen);
+                }
+                break;
+        }
     }
 
     private void Plot(bool leftPressed, bool shiftPressed, bool forced)
