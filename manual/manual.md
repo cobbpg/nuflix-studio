@@ -72,19 +72,33 @@ It is impossible to perform this many colour updates in general, so when the tim
 > ```
 > The resulting file should be ready for loading even if it doesn't contain the standard NUFLI code (e.g. Game Art Beyond images), as long as all the data is in the right place.
 
-
 ### Drawing
 
-In **Free** editing mode or over the border the pen just plots the active colour. There's a primary and a secondary colour assigned to the left and right mouse buttons, respectively. They can be set either by clicking on the palette in the pen toolbar with the corresponding button, or with the following keys (hold **`Shift`** to set the secondary colour):
+The view can be panned either by pressing the middle mouse button while dragging or using a touchpad (or any other two-dimensional mouse wheel input). There's also full undo/redo for all drawing operations with **`Ctrl+Z`** and **`Ctrl+Shift+Z`**.
+
+Each colour is assigned a key. The default bindings are the following:
 
 | Codes | | | | | | | | |
 | --- | :-: | :-: | :-: | :-: | :-: | :-: | :-: | :-: |
 | 0-7  | **`1`** | **`2`** | **`3`** | **`4`** | **`5`** | **`6`** | **`7`** | **`8`** |
 | 8-15 | **`Q`** | **`W`** | **`E`** | **`R`** | **`T`** | **`Y`** | **`U`** | **`I`** |
 
-The currently selected colours are marked with the letters **L** and **R** in the palette depending on which button they are assigned to. If both buttons are assigned the same colour, the **R** remains hidden.
+When discussing controls for the specific modes, **`Col`** stands for any of the above keys.
 
-The border colour is changed only for the section under the cursor. Holding **`Shift`** while clicking will perform flood fill over all connected sections with the same colour.
+#### Free Mode
+
+In **Free** editing mode or over the border the pen just plots the active colour. There's a primary and a secondary colour assigned to the left and right mouse button (**`LMB`** and **`RMB`**), respectively. The currently selected colours are marked with the letters **L** and **R** in the palette depending on which button they are assigned to. If both buttons are assigned the same colour, the **R** remains hidden. The following controls are available:
+
+| Input | Description |
+| --- | --- |
+| **`Col`**/**`Shift+Col`** | Set the primary/secondary colour. |
+| **`LMB`**/**`RMB`** on the **palette** | Set the primary/secondary colour. |
+| **`LMB`**/**`RMB`** on the **picture** | Paint with the primary/secondary colour. |
+| **`Ctrl+LMB`**/**`Ctrl+RMB`** on the **picture** | Pick the primary/secondary from the picture. |
+| **`LMB`**/**`RMB`** on the **border** | Change the border section under the cursor to the primary/secondary colour. |
+| **`Shift+LMB`**/**`Shift+RMB`** on the **border** | Flood fill the border with the primary/secondary colour starting from the cursor. |
+
+#### Layers Mode
 
 In **Layers** editing mode you have to select the active layer to paint on:
 
@@ -107,15 +121,11 @@ The colours of the layers can be manipulated in the section currently under the 
 * **`Ctrl+Col`**: paper
 * **`Alt+Col`**: multicolour sprite in the bug area; this changes the colour of the pixel under the cursor
 
-There's also full undo/redo for all drawing operations with **`Ctrl+Z`** and **`Ctrl+Shift+Z`**.
-
 ### View
 
 When the view is set to a single image, i.e. anything but the **Split** mode, there's additional information shown about the sprite layers. The left hand side shows the colour of the sprites in each section: **H**, **M1**, **M2**, **M3** specify the sprite colours over the FLI bug, while **C1-C6** are the colours of each 48-pixel underlay section over the main area. These latter ones can potentially change in every scanline. Unused colours (which have no pixels set in the given section) are shown translucent.
 
 The right hand side shows the CPU time required to realise the colours on the left side. The shorter a bar, the less time is needed. The full length of the bar is 46 clock cycles per section (two scanlines). If there's not enough time to update all the colours as specified in a given section, the bar turns red. If there are some flexible updates (i.e. valid within a range of sections) that had to be dropped for good because they expired within the section, the bar turns orange. In the **Free** and **Layers** views the left side shows the desired colours specified by the user. In the **Result** view we can see the actual colours set by the executable, so we can compare visually what was changed to make everything fit.
-
-The view can be panned either by pressing the middle mouse button while dragging or using a touchpad (or any other two-dimensional mouse wheel input).
 
 ## Configuration
 
