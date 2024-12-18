@@ -58,8 +58,6 @@ public class CodeGeneration
 
         var totalFreeCycles = 0;
 
-        var nextDeferredIndex = 0;
-
         var bugColors = _bugColors.ToList();
         for (var i = 0; i < BugColorSlots; i++)
         {
@@ -68,6 +66,8 @@ public class CodeGeneration
 
         FreeCycles = new List<int>();
         var snippets = new List<SpeedCodeSnippet>();
+        var remainingDeferredUpdates = new HashSet<RegisterUpdate>(deferredUpdates);
+        var unusedDeferredUpdates = new HashSet<RegisterUpdate>();
         for (var y = 0; y < AttributeHeight; y++)
         {
             var speedcode = new SpeedCodeSnippet();
@@ -75,14 +75,16 @@ public class CodeGeneration
             var generationAttempts = 0;
             var actualRowUpdates = new List<RegisterUpdate>(updates[y]);
             var nextRowUpdates = y < AttributeHeight - 1 ? updates[y + 1] : new List<RegisterUpdate>();
+            var screenY = (y << 1) + 1;
+            var matchingDeferredUpdates = remainingDeferredUpdates.Where(update => update.ScreenY <= screenY + 1 && screenY <= update.LastScreenY).OrderBy(update => update.LastScreenY).ToList();
             var initRegA = regA;
             var initRegX = regX;
             var initRegY = regY;
-            var extraLimit = 6;
+            var extraLimit = min(6, matchingDeferredUpdates.Count);
             var freeCycles = 0;
             while (true)
             {
-                speedcode.Generate(y, regA, regX, regY, extraLimit, actualRowUpdates, nextRowUpdates, deferredUpdates, nextDeferredIndex);
+                speedcode.Generate(y, regA, regX, regY, extraLimit, actualRowUpdates, nextRowUpdates, matchingDeferredUpdates);
                 if (freeCycles >= 0)
                 {
                     freeCycles = speedcode.FreeCycles;
@@ -115,9 +117,19 @@ public class CodeGeneration
                 }
                 break;
             }
-            if (speedcode.DroppedUpdates.Count > 0)
+            foreach (var update in speedcode.DeferredUpdatesIncluded)
+            {
+                remainingDeferredUpdates.Remove(update);
+            }
+            var droppedUpdates = remainingDeferredUpdates.Where(update => update.LastScreenY < screenY + 2).ToList();
+            if (droppedUpdates.Count > 0)
             {
                 freeCycles |= 0x100;
+                unusedDeferredUpdates.UnionWith(droppedUpdates);
+                foreach (var update in droppedUpdates)
+                {
+                    remainingDeferredUpdates.Remove(update);
+                }
             }
             FreeCycles.Add(freeCycles);
             regA = speedcode.Registers[0];
@@ -126,7 +138,7 @@ public class CodeGeneration
             var effectiveUpdates = speedcode.EffectiveUpdates;
             if (y < AttributeHeight - 1)
             {
-                var screenY = y << 1;
+                screenY--;
                 for (var s = 0; s < BugColorSlots; s++)
                 {
                     _bugColors[(y + 1) * BugColorSlots + s] = _bugColors[y * BugColorSlots + s];
@@ -198,13 +210,16 @@ public class CodeGeneration
                     sb.Append(col < 0 ? " " : $"{col:x1}");
                 }
                 sb.AppendLine($" | {(speedcode.ExtraUpdates > 0 ? "+" + speedcode.ExtraUpdates : "  ")} | a={initRegA & 0xff:x2} x={initRegX & 0xff:x2} y={initRegY & 0xff:x2} | " + string.Join("; ", speedcode.Code));
-                foreach (var update in speedcode.DroppedUpdates)
+                foreach (var update in speedcode.DeferredUpdatesIncluded)
                 {
-                    rsb?.AppendLine($"Dropped {y} {update.Type} {update}");
+                    rsb?.AppendLine($"Included {y} {update.Type} {update}");
                 }
             }
             totalFreeCycles += speedcode.FreeCycles;
-            nextDeferredIndex = speedcode.DeferredIndex;
+        }
+        foreach (var update in unusedDeferredUpdates)
+        {
+            rsb?.AppendLine($"Unused {update.Type} {update}");
         }
 
         // NTSC adjustments
@@ -266,7 +281,7 @@ public class CodeGeneration
 
         var spriteMoveCount = snippets
             .Skip(RegisterUpdate.EarliestSpriteUpdateScreenY >> 1)
-            .Take((RegisterUpdate.LatestSpriteUpdateScreenY >> 1) - (RegisterUpdate.EarliestSpriteUpdateScreenY >> 1))
+            .Take((RegisterUpdate.LatestSpriteUpdateScreenY >> 1) - (RegisterUpdate.EarliestSpriteUpdateScreenY >> 1) + 1)
             .Select(snippet => snippet.Code.Count(ins => ins.IsStore && ins.Operand < 0xd010))
             .Sum();
         SpriteMoveFailed = spriteMoveCount < 8;
@@ -547,10 +562,9 @@ public class SpeedCodeSnippet
     public readonly int[] Registers = new int[RegisterCount];
     public readonly List<Instruction> Code = new();
     public readonly List<RegisterUpdate> EffectiveUpdates = new();
-    public readonly List<RegisterUpdate> DroppedUpdates = new();
+    public readonly List<RegisterUpdate> DeferredUpdatesIncluded = new();
     public bool Overflowed;
     public int FreeCycles;
-    public int DeferredIndex;
     public int ExtraUpdates;
 
     private readonly Operation[] LoadOps = { Operation.LDA, Operation.LDX, Operation.LDY };
@@ -559,7 +573,7 @@ public class SpeedCodeSnippet
     private int _fliRegister = -1;
     private int _lastColumnRegister = -1;
 
-    public void Generate(int rowNumber, int a, int x, int y, int extraLimit, List<RegisterUpdate> updates, List<RegisterUpdate> followingUpdates, List<RegisterUpdate> deferredUpdates, int nextDeferredIndex)
+    public void Generate(int rowNumber, int a, int x, int y, int extraLimit, List<RegisterUpdate> updates, List<RegisterUpdate> followingUpdates, List<RegisterUpdate> deferredUpdates)
     {
         RowNumber = rowNumber;
         Cycle = rowNumber > 0 && (rowNumber & 3) == 0 ? 0x0a : 0x0b;
@@ -569,30 +583,25 @@ public class SpeedCodeSnippet
         Code.Clear();
         Overflowed = false;
         FreeCycles = 0;
-        DeferredIndex = nextDeferredIndex;
         ExtraUpdates = 0;
         EffectiveUpdates.Clear();
-        DroppedUpdates.Clear();
+        DeferredUpdatesIncluded.Clear();
         var remainingUpdates = new List<RegisterUpdate>(updates);
         var screenY = (rowNumber << 1) + 1;
         var earlyCount = remainingUpdates.Count(update => update.Early);
-        while (ExtraUpdates < extraLimit && DeferredIndex < deferredUpdates.Count)
+        for (var i = 0; i < deferredUpdates.Count; i++)
         {
-            var update = deferredUpdates[DeferredIndex];
-            if (update.ScreenY > screenY + 1)
+            var update = deferredUpdates[i];
+            if (update.Type != RegisterType.SpriteY || update.LastScreenY != screenY)
             {
-                break;
-            }
-            if (update.LastScreenY >= screenY + 1)
-            {
-                remainingUpdates.Add(update.CloneDeferred(screenY));
+                if (ExtraUpdates >= extraLimit)
+                {
+                    break;
+                }
                 ExtraUpdates++;
             }
-            else
-            {
-                DroppedUpdates.Add(update);
-            }
-            DeferredIndex++;
+            remainingUpdates.Add(update.CloneDeferred(screenY));
+            DeferredUpdatesIncluded.Add(update);
         }
         RegisterUpdate.SortUpdatesByTime(remainingUpdates);
         for (var r = 0; r < RegisterCount; r++)
