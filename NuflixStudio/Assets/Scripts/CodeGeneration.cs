@@ -1253,7 +1253,7 @@ public class RegisterUpdate
             Slot = slot,
             Value = 0xd4,
             ScreenY = EarliestSpriteUpdateScreenY,
-            LastScreenY = LatestSpriteUpdateScreenY
+            LastScreenY = LatestSpriteUpdateScreenY - ((slot ^ 7) << 1)
         };
     }
 }
