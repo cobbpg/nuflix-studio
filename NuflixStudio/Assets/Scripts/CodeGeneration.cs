@@ -466,6 +466,10 @@ public class CodeGeneration
 
     private bool RemoveLeastImportantUnderlayUpdate(int y, List<RegisterUpdate> updates, StringBuilder sb)
     {
+        if (y >= AttributeHeight - 1)
+        {
+            return false;
+        }
         var bestD = int.MaxValue;
         var changedSlot = -1;
         var currentUpdates = new RegisterUpdate[UnderlayColumns];
@@ -486,6 +490,7 @@ public class CodeGeneration
                 }
             }
         }
+        // First only check columns with two updates
         for (var i = 0; i < UnderlayColumns; i++)
         {
             if (currentUpdates[i] == null || nextUpdates[i] == null)
@@ -514,39 +519,77 @@ public class CodeGeneration
                 changedSlot = i;
             }
         }
-        if (changedSlot < 0)
+        if (changedSlot >= 0)
         {
-            return false;
-        }
-        var uix = (y << 1) * UnderlayColumns + (changedSlot % UnderlayColumns);
-        if (changedSlot < UnderlayColumns)
-        {
-            var currentUpdate = currentUpdates[changedSlot];
-            sb?.AppendLine($"Removing Underlay {y} {changedSlot} {currentUpdate}");
-            updates.Remove(currentUpdate);
-            _underlayColors[uix + UnderlayColumns] = _underlayColors[uix];
-        }
-        else
-        {
-            var column = changedSlot - UnderlayColumns;
-            var currentUpdate = currentUpdates[column];
-            var nextUpdate = nextUpdates[column];
-            if (_underlayColors[uix] == _underlayColors[uix + UnderlayColumns * 2])
+            var uix = (y << 1) * UnderlayColumns + (changedSlot % UnderlayColumns);
+            if (changedSlot < UnderlayColumns)
             {
-                sb?.AppendLine($"Removing Double Underlay {y} {changedSlot} {currentUpdate} + {nextUpdate}");
+                var currentUpdate = currentUpdates[changedSlot];
+                sb?.AppendLine($"Removing Underlay {y} {changedSlot} {currentUpdate}");
                 updates.Remove(currentUpdate);
-                updates.Remove(nextUpdate);
                 _underlayColors[uix + UnderlayColumns] = _underlayColors[uix];
             }
             else
             {
-                sb?.AppendLine($"Overriding Underlay {y} {changedSlot} {currentUpdates[column]} -> {nextUpdate.Value:x2}");
-                currentUpdate.Value = nextUpdate.Value;
-                updates.Remove(nextUpdate);
-                _underlayColors[uix + UnderlayColumns] = _underlayColors[uix + UnderlayColumns * 2];
+                var column = changedSlot - UnderlayColumns;
+                var currentUpdate = currentUpdates[column];
+                var nextUpdate = nextUpdates[column];
+                if (_underlayColors[uix] == _underlayColors[uix + UnderlayColumns * 2])
+                {
+                    sb?.AppendLine($"Removing Double Underlay {y} {changedSlot} {currentUpdate} + {nextUpdate}");
+                    updates.Remove(currentUpdate);
+                    updates.Remove(nextUpdate);
+                    _underlayColors[uix + UnderlayColumns] = _underlayColors[uix];
+                }
+                else
+                {
+                    sb?.AppendLine($"Overriding Underlay {y} {changedSlot} {currentUpdates[column]} -> {nextUpdate.Value:x2}");
+                    currentUpdate.Value = nextUpdate.Value;
+                    updates.Remove(nextUpdate);
+                    _underlayColors[uix + UnderlayColumns] = _underlayColors[uix + UnderlayColumns * 2];
+                }
+            }
+            return true;
+        }
+        // Remove the only update from a column if it's immediately updated in the following section
+        bestD = int.MaxValue;
+        RegisterUpdate bestUpdate = null;
+        for (var i = 0; i < UnderlayColumns; i++)
+        {
+            var update = currentUpdates[i] ?? nextUpdates[i];
+            if (update == null)
+            {
+                continue;
+            }
+            var colNext = _underlayColors[(screenY + 1) * UnderlayColumns + i] & 0xf;
+            var colAfter = _underlayColors[(screenY + 2) * UnderlayColumns + i] & 0xf;
+            if (colAfter == colNext)
+            {
+                continue;
+            }
+            var colPrev = _underlayColors[(screenY - 1) * UnderlayColumns + i] & 0xf;
+            var d = Image.GetMidSectionDistance(screenY + 1, i, colPrev);
+            if (update.Early)
+            {
+                d += Image.GetMidSectionDistance(screenY, i, colPrev);
+            }
+            if (d < bestD)
+            {
+                bestD = d;
+                bestUpdate = update;
+                changedSlot = i;
             }
         }
-        return true;
+        if (bestUpdate != null)
+        {
+            var uix = (y << 1) * UnderlayColumns + changedSlot;
+            updates.Remove(bestUpdate);
+            sb?.AppendLine($"Removing Solitary Underlay {y} {changedSlot} {bestUpdate}");
+            _underlayColors[uix + UnderlayColumns] = _underlayColors[uix];
+            _underlayColors[uix + UnderlayColumns * 2] = _underlayColors[uix];
+            return true;
+        }
+        return false;
     }
 }
 
