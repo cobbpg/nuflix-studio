@@ -27,6 +27,7 @@ It is impossible to perform this many colour updates in general, so when the tim
 ## Converter
 
 ![NUFLIX Studio converter](converter.png)
+Example image credits: [The Pixel Apothecary](https://x.com/pixelapothecary)
 
 | Control | Description |
 | ------- | ----------- |
