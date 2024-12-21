@@ -45,7 +45,7 @@ Example image credits: [The Pixel Apothecary](https://x.com/pixelapothecary)
 > When mapping colours, it's easiest to start with the sliders in automatic mode, then switch to manual mode and tweak the individual entries if needed.
 
 > [!WARNING] 
-> If there are too many colour changes in the lower half of the image, there might not be enough time to move all the sprites to the bottom of the screen. When this happens, the program displays an overlay saying **"Not enough time to multiplex sprites!"**, and the image will be broken on the bottom. To remedy this, some colour updates need to be removed in the region between lines 123 and 163.
+> It's possible that in some rare cases the code generation algorithm fails to remove enough register updates to fit into the cycle budget of a section. When this happens, the program displays an overlay saying **"Ran out of cycles in rows: Y (C/Q)!"**, where Y is the screen Y coordinate (0‒199), while C is the respective character row (0‒24) and its affected quarter (0‒3), i.e. Y ≈ C×8+Q×2. The image will have a visual artifact at this row, as the FLI bug gets delayed and pushed to the right, breaking the bitmap colours. To remedy this, some colour updates need to be removed in the neighbourhood of the offending rows.
 
 ## Editor
 

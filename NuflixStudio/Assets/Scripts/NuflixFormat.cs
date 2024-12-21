@@ -347,7 +347,7 @@ public class NuflixFormat
         {
             Bytes = result.ToArray(),
             FreeCycles = codeGeneration.FreeCycles,
-            SpriteMoveFailed = codeGeneration.SpriteMoveFailed,
+            Error = codeGeneration.Error,
         };
     }
 
@@ -612,5 +612,5 @@ public class NuflixExportResult
 {
     public byte[] Bytes;
     public List<int> FreeCycles;
-    public bool SpriteMoveFailed;
+    public string Error;
 }

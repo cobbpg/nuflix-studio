@@ -27,7 +27,7 @@ public class CodeGeneration
     public byte InitX { get; private set; }
     public byte InitY { get; private set; }
     public int BankChangeAddress { get; private set; }
-    public bool SpriteMoveFailed { get; private set; }
+    public string Error { get; private set; }
 
     public CodeGeneration(LayeredImage image)
     {
@@ -222,6 +222,21 @@ public class CodeGeneration
             rsb?.AppendLine($"Unused {update.Type} {update}");
         }
 
+        var overflows = new List<string>();
+        for (var y = 0; y < snippets.Count; y++)
+        {
+            if (snippets[y].Overflowed)
+            {
+                var screenY = (y << 1) + 1;
+                overflows.Add($"{screenY} ({y >> 2}/{y & 3})");
+            }
+        }
+
+        if (overflows.Count > 0)
+        {
+            Error = $"Ran out of cycles in rows: {string.Join(", ", overflows)}";
+        }
+
         // NTSC adjustments
         var lastRegX = (int)InitX;
         var endedWithLastColumn = false;
@@ -278,13 +293,6 @@ public class CodeGeneration
 
         sb?.AppendLine($"free cycles = {totalFreeCycles}");
         sb?.Append("\nResolutions:\n" + rsb);
-
-        var spriteMoveCount = snippets
-            .Skip(RegisterUpdate.EarliestSpriteUpdateScreenY >> 1)
-            .Take((RegisterUpdate.LatestSpriteUpdateScreenY >> 1) - (RegisterUpdate.EarliestSpriteUpdateScreenY >> 1) + 1)
-            .Select(snippet => snippet.Code.Count(ins => ins.IsStore && ins.Operand < 0xd010))
-            .Sum();
-        SpriteMoveFailed = spriteMoveCount < 8;
 
         var instructions = snippets.SelectMany(snippet => snippet.Code).ToList();
         instructions.Add(new Instruction(Operation.RTS));

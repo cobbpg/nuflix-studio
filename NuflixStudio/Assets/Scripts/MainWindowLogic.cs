@@ -22,7 +22,7 @@ public class MainWindowLogic : ScriptableObject
     private VisualElement _root;
     private ConverterPane _converterPane = new();
     private EditorPane _editorPane = new();
-    private VisualElement _spriteMoveWarningLabel;
+    private Label _errorLabel;
 
     public Palette Palette { get; private set; }
     public MonitorConnection MonitorConnection { get; private set; }
@@ -89,7 +89,7 @@ public class MainWindowLogic : ScriptableObject
 
         root.Q<Button>("open-manual").clicked += () => Application.OpenURL($"https://github.com/cobbpg/nuflix-studio/blob/v{Version}/manual/manual.md");
 
-        _spriteMoveWarningLabel = root.Q<VisualElement>("sprite-move-warning-label");
+        _errorLabel = root.Q<Label>("error-label");
         _conversionPipeline = ImageConversionPipeline().GetEnumerator();
         _converterPane.Init(this, root, _paletteMappingEntryTemplate);
         _editorPane.Init(this, root, _editorPaneAssets);
@@ -260,7 +260,15 @@ public class MainWindowLogic : ScriptableObject
                 Profiler.BeginSample("EditorTexture");
                 _editorPane.RefreshEditorTexture(true);
                 Profiler.EndSample();
-                _spriteMoveWarningLabel.style.display = result.SpriteMoveFailed ? DisplayStyle.Flex : DisplayStyle.None;
+                if (result.Error != null)
+                {
+                    _errorLabel.text = result.Error;
+                    _errorLabel.style.display = DisplayStyle.Flex;
+                }
+                else
+                {
+                    _errorLabel.style.display = DisplayStyle.None;
+                }
 
                 Profiler.EndSample();
 #if UNITY_EDITOR
