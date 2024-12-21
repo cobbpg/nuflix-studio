@@ -1,13 +1,21 @@
 using System.IO;
-using UnityEditor;
-using UnityEditor.Callbacks;
+using UnityEditor.Build;
+using UnityEditor.Build.Reporting;
+using UnityEngine;
 
-public class Build
+public class Build : IPreprocessBuildWithReport, IPostprocessBuildWithReport
 {
-    [PostProcessBuild]
-    public static void OnPostprocessBuild(BuildTarget target, string pathToBuiltProject)
+    public int callbackOrder => 0;
+
+    public void OnPreprocessBuild(BuildReport report)
     {
-        var targetDir = Path.Combine(Path.GetDirectoryName(pathToBuiltProject), MainWindowLogic.SettingsDir);
+        var logic = Resources.Load<MainWindowLogic>("MainWindowLogic");
+        logic.ResetBeforeBuild();
+    }
+
+    public void OnPostprocessBuild(BuildReport report)
+    {
+        var targetDir = Path.Combine(Path.GetDirectoryName(report.summary.outputPath), MainWindowLogic.SettingsDir);
         Directory.CreateDirectory(targetDir);
         foreach (var path in Directory.GetFiles(MainWindowLogic.SettingsDir))
         {

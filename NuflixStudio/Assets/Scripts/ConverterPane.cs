@@ -183,7 +183,7 @@ public class ConverterPane
 
     public void RefreshResultImage(int[] referencePixels)
     {
-        if (!Active || _main.ResultImage == null)
+        if (!Active || _main.ResultImage == null || referencePixels == null || referencePixels.Length < ScreenWidth * ScreenHeight)
         {
             return;
         }

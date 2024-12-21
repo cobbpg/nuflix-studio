@@ -136,6 +136,27 @@ public class MainWindowLogic : ScriptableObject
         ClearUndoStack();
         _converterPane.Refresh();
     }
+
+    public void ResetBeforeBuild()
+    {
+        ResetConverter();
+        DestroyImage(ref InputImage);
+        DestroyImage(ref PreparedImage);
+        DestroyImage(ref ResultImage);
+        DestroyImage(ref ErrorImage);
+        PreparedPixels = null;
+        NufliBytes = null;
+        FreeCycles = null;
+    }
+
+    private static void DestroyImage(ref Texture2D image)
+    {
+        if (image != null)
+        {
+            DestroyImmediate(image);
+        }
+        image = null;
+    }
 #endif
 
     public string OpenFileBrowser(string title, params ExtensionFilter[] filter)

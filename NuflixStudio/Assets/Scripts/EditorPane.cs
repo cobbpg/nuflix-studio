@@ -959,6 +959,10 @@ public class EditorPane
 
     private void RefreshCyclesHistogram()
     {
+        if (_main.FreeCycles == null || _main.FreeCycles.Count < AttributeHeight)
+        {
+            return;
+        }
         const int histogramWidth = 48;
         if (CyclesHistogram == null)
         {
