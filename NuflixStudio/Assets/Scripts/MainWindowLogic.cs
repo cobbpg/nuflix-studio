@@ -14,6 +14,7 @@ public class MainWindowLogic : ScriptableObject
     [SerializeField] private VisualTreeAsset _paletteMappingEntryTemplate;
     [SerializeField] private EditorPaneAssets _editorPaneAssets;
 
+    public const string Version = "1.1";
     public const string SettingsDir = "Settings";
     private const string LogFile = "nuflix-log.txt";
 
@@ -85,6 +86,8 @@ public class MainWindowLogic : ScriptableObject
         root.Focus();
         MainTabView = root.Q<TabView>("tab-main");
         MainTabView.activeTabChanged += OnActiveTabChanged;
+
+        root.Q<Button>("open-manual").clicked += () => Application.OpenURL($"https://github.com/cobbpg/nuflix-studio/blob/v{Version}/manual/manual.md");
 
         _spriteMoveWarningLabel = root.Q<VisualElement>("sprite-move-warning-label");
         _conversionPipeline = ImageConversionPipeline().GetEnumerator();

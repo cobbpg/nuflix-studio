@@ -141,5 +141,6 @@
             </ui:VisualElement>
         </ui:VisualElement>
         <ui:Label text="Not enough time to multiplex sprites!" name="sprite-move-warning-label" enable-rich-text="false" picking-mode="Ignore" style="background-color: rgba(255, 0, 0, 0.66); align-self: stretch; -unity-text-align: upper-center; margin-top: 0; margin-right: 0; margin-bottom: 0; margin-left: 0; padding-top: 8px; padding-right: 8px; padding-bottom: 8px; padding-left: 8px; font-size: 28px; color: rgb(255, 255, 255); border-left-color: rgb(255, 0, 0); border-right-color: rgb(255, 0, 0); border-top-color: rgb(255, 0, 0); border-bottom-color: rgb(255, 0, 0); border-top-width: 4px; border-bottom-width: 4px; display: none; position: absolute; left: 0; right: 0; top: 50%;" />
+        <ui:Button text="Manual" name="open-manual" style="position: absolute; right: 0; top: 0; background-color: rgb(81, 224, 28); margin-top: 0; margin-right: 0; margin-bottom: 0; margin-left: 0; padding-top: 3px; padding-bottom: 3px; font-size: 13px;" />
     </ui:VisualElement>
 </ui:UXML>
