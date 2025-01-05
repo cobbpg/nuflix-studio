@@ -14,7 +14,14 @@ public class Palette
 
     private List<List<int>> _distances;
 
-    public List<List<int>> Distances => _distances;
+    public List<List<int>> Distances
+    {
+        get
+        {
+            InitDistancesIfNeeded();
+            return _distances;
+        }
+    }
 
     public void ResetDistances()
     {
@@ -31,7 +38,7 @@ public class Palette
         return result;
     }
 
-    public int Distance(int c1, int c2)
+    private void InitDistancesIfNeeded()
     {
         if (_distances == null || _distances.Count == 0)
         {
@@ -47,6 +54,11 @@ public class Palette
                 _distances.Add(ds);
             }
         }
+    }
+
+    public int Distance(int c1, int c2)
+    {
+        InitDistancesIfNeeded();
         return _distances[c1][c2];
     }
 
