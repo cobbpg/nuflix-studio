@@ -796,8 +796,11 @@ public class EditorPane
             case ImageSection.SideBorder:
             case ImageSection.TopBorder:
             case ImageSection.BottomBorder:
-                _workImage.SetBorderColor(px, py, penColor, shiftPressed);
-                _main.RefreshWorkImage();
+                if (_viewMode != EditorViewMode.Split && _showBorder)
+                {
+                    _workImage.SetBorderColor(px, py, penColor, shiftPressed);
+                    _main.RefreshWorkImage();
+                }
                 return;
         }
         if (!forced)
