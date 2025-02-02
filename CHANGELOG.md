@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.1.1 - 2025-02-02
+
+This is a bugfix release.
+
+### Editor
+
+* Fixed loading NUFLIX projects without using the converter first.
+* Fixed logic to prevent accidental border edits.
+
 ## 1.1 - 2024-12-21
 
 The most important change since the previous version is that the exporter will always include all the necessary sprite moves to be able to display the full picture, no matter how many register updates the picture requires. Other than that, the editor was extended with some features requested by various people.
