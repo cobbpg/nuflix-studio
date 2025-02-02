@@ -14,7 +14,7 @@ public class MainWindowLogic : ScriptableObject
     [SerializeField] private VisualTreeAsset _paletteMappingEntryTemplate;
     [SerializeField] private EditorPaneAssets _editorPaneAssets;
 
-    public const string Version = "1.1";
+    public const string Version = "1.1.1";
     public const string SettingsDir = "Settings";
     private const string LogFile = "nuflix-log.txt";
 
