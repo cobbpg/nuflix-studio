@@ -8,8 +8,9 @@
 [Uu]ser[Ss]ettings/
 [Mm]emoryCaptures/
 
-# Visual Studio / MonoDevelop generated
+# Visual Studio / MonoDevelop / Rider generated
 [Ee]xported[Oo]bj/
+.idea/
 .vs/
 .vsconfig
 *.csproj
