@@ -40,6 +40,7 @@ public class ConverterPane
     private VisualElement _palettePicker;
     private VisualElement _paletteContainer;
     private int _selectedMappingEntryIndex;
+    private int _selectedMappingTargetIndex;
 
     private VisualElement _imageViews;
 
@@ -102,10 +103,20 @@ public class ConverterPane
             var intensity = (entryIndex >> 3) == 0 ? 0 : 0.5f;
             entry.style.backgroundColor = (Color)_main.Palette.Colors[entryIndex];
             var index = entryIndex;
-            entry.AddManipulator(new Clickable(() => OnPickerEntryClicked(index)));
+            entry.RegisterCallback<ClickEvent>(evt =>
+            {
+                OnPickerEntryClicked(index);
+                evt.StopPropagation();
+            });
+            entry.RegisterCallback<PointerMoveEvent>(evt =>
+            {
+                OnPickerEntryHovered(index);
+                evt.StopPropagation();
+            });
             entryIndex++;
         }
-        _palettePicker.AddManipulator(new Clickable(OnPalettePickerAreaClicked));
+        _palettePicker.RegisterCallback<ClickEvent>(OnPalettePickerAreaClicked);
+        _palettePicker.RegisterCallback<PointerMoveEvent>(OnPalettePickerAreaHovered);
         _paletteMappingTargets = new List<VisualElement>();
 
         _imageViews = root.Q<VisualElement>("image-views");
@@ -240,6 +251,11 @@ public class ConverterPane
         var sliderName = ((SliderInt)evt.target).name;
         _conversionProfile.SetAdjustmentValue(sliderName.Replace("-slider", ""), evt.newValue);
         RefreshPalette();
+    }
+
+    private void OnPalettePickerAreaHovered(EventBase evt)
+    {
+        OnPickerEntryHovered(_selectedMappingTargetIndex);
     }
 
     private void OnPalettePickerAreaClicked(EventBase evt)
@@ -505,6 +521,7 @@ public class ConverterPane
             return;
         }
         _selectedMappingEntryIndex = index;
+        _selectedMappingTargetIndex = _conversionProfile.TargetIndices[index];
         var bounds = target.worldBound;
         var parentBounds = _palettePicker.worldBound;
         var viewBounds = _palettePicker.parent.worldBound;
@@ -512,6 +529,13 @@ public class ConverterPane
         _paletteContainer.style.left = bounds.xMax + 4;
         _paletteContainer.style.top = min(bounds.center.y - parentBounds.yMin - paletteHeight / 2, viewBounds.height - paletteHeight);
         _palettePicker.style.display = DisplayStyle.Flex;
+    }
+
+    private void OnPickerEntryHovered(int index)
+    {
+        _conversionProfile.TargetIndices[_selectedMappingEntryIndex] = index;
+        _paletteMappingTargets[_selectedMappingEntryIndex].style.backgroundColor = (Color)_main.Palette.Colors[index];
+        RefreshPreparedImage();
     }
 
     private void OnPickerEntryClicked(int index)
