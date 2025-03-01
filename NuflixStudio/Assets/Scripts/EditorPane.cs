@@ -637,6 +637,8 @@ public class EditorPane
         evt.StopPropagation();
     }
 
+    private Vector2 GetPosition(IMouseEvent evt) => evt.localMousePosition * Screen.dpi / 96;
+
     private void OnEditorWheel(WheelEvent evt)
     {
         var delta = (Vector2)evt.delta;
@@ -656,7 +658,7 @@ public class EditorPane
             return;
         }
         _viewPos += delta * 16;
-        RefreshPixelPosition(evt.localMousePosition);
+        RefreshPixelPosition(GetPosition(evt));
         RefreshEditorTexture();
         _imageEditor.MarkDirtyRepaint();
     }
@@ -664,7 +666,7 @@ public class EditorPane
     private void OnEditorMouseDown(MouseDownEvent evt)
     {
         _main.MakeUndoCheckpoint();
-        RefreshPixelPosition(evt.localMousePosition);
+        RefreshPixelPosition(GetPosition(evt));
         var leftPressed = (evt.pressedButtons & 1) != 0;
         var rightPressed = (evt.pressedButtons & 2) != 0;
         var midPressed = (evt.pressedButtons & 4) != 0;
@@ -682,7 +684,7 @@ public class EditorPane
         if (midPressed)
         {
             _dragStartViewPos = _viewPos;
-            _dragStartPixelPos = evt.localMousePosition;
+            _dragStartPixelPos = GetPosition(evt);
         }
     }
 
@@ -695,13 +697,13 @@ public class EditorPane
         var midPressed = (evt.pressedButtons & 4) != 0;
         if (midPressed)
         {
-            _viewPos = _dragStartViewPos + (_dragStartPixelPos - evt.localMousePosition);
+            _viewPos = _dragStartViewPos + (_dragStartPixelPos - GetPosition(evt));
             RefreshEditorTexture();
-            RefreshPixelPosition(evt.localMousePosition);
+            RefreshPixelPosition(GetPosition(evt));
             _imageEditor.MarkDirtyRepaint();
             return;
         }
-        var movedPixel = RefreshPixelPosition(evt.localMousePosition);
+        var movedPixel = RefreshPixelPosition(GetPosition(evt));
         var leftPressed = (evt.pressedButtons & 1) != 0;
         var rightPressed = (evt.pressedButtons & 2) != 0;
         if (leftPressed || rightPressed)
@@ -719,7 +721,7 @@ public class EditorPane
 
     private void OnEditorMouseUp(MouseUpEvent evt)
     {
-        RefreshPixelPosition(evt.localMousePosition);
+        RefreshPixelPosition(GetPosition(evt));
         RefreshEditorTexture();
         _imageEditor.MarkDirtyRepaint();
     }
