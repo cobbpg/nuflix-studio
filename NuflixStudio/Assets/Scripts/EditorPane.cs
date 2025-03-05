@@ -652,7 +652,7 @@ public class EditorPane
             delta.y = 0;
         }
         _lastWheelDelta = evt.delta;
-        if (evt.ctrlKey)
+        if (evt.actionKey)
         {
             SetViewScale(clamp(_viewScale - (int)sign(delta.y), _viewScaleSlider.lowValue, _viewScaleSlider.highValue));
             return;
