@@ -44,7 +44,11 @@ public static class KeyBindings
                         keyCommand.Alt = true;
                         break;
                     default:
-                        if (Enum.TryParse<KeyCode>(part, true, out var keyCode))
+                        if (part.Length == 1 && part[0] is >= ' ' and <= '~')
+                        {
+                            keyCommand.Code = (KeyCode)part[0];
+                        }
+                        else if (Enum.TryParse<KeyCode>(part, true, out var keyCode))
                         {
                             keyCommand.Code = keyCode;
                         }
