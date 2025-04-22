@@ -38,6 +38,10 @@ public class MainWindowLogic : ScriptableObject
             }
             _viceBridgeEnabled = value;
             OnViceBridgeToggled?.Invoke(_viceBridgeEnabled);
+            if (value)
+            {
+                RefreshWorkImage();
+            }
         }
     }
     public Action<bool> OnViceBridgeToggled;
@@ -199,7 +203,7 @@ public class MainWindowLogic : ScriptableObject
             _pipelineStage = ConversionPipelineStage.Idle;
             var workImage = WorkImage;
 
-            if (stage == ConversionPipelineStage.ExtractLayers || workImage == null)
+            if (stage == ConversionPipelineStage.ExtractLayers || (workImage == null && PreparedPixels != null))
             {
                 workImage = new LayeredImage(PreparedPixels, Palette);
                 var gen = workImage.GenerateColors(false).GetEnumerator();
@@ -230,13 +234,13 @@ public class MainWindowLogic : ScriptableObject
                 stage = ConversionPipelineStage.GenerateLayers;
             }
 
-            if (stage == ConversionPipelineStage.GenerateLayers)
+            if (stage == ConversionPipelineStage.GenerateLayers && workImage != null)
             {
                 workImage.GenerateLayers();
                 stage = ConversionPipelineStage.Refresh;
             }
 
-            if (stage == ConversionPipelineStage.Refresh)
+            if (stage == ConversionPipelineStage.Refresh && workImage != null)
             {
                 Profiler.BeginSample("Refresh");
                 Profiler.BeginSample("Export");
