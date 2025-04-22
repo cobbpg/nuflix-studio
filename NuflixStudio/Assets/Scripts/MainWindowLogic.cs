@@ -99,7 +99,14 @@ public class MainWindowLogic : ScriptableObject
         _editorPane.Init(this, root, _editorPaneAssets);
 
 #if UNITY_EDITOR
-        RestoreAfterHotswapping();
+        if (Application.isPlaying)
+        {
+            ResetBeforeBuild();
+        }
+        else
+        {
+            RestoreAfterHotswapping();
+        }
 #endif
     }
 
@@ -133,10 +140,6 @@ public class MainWindowLogic : ScriptableObject
 #if UNITY_EDITOR
     private void RestoreAfterHotswapping()
     {
-        if (Application.isPlaying)
-        {
-            return;
-        }
         ClearUndoStack();
         _converterPane.Refresh();
     }
@@ -151,6 +154,7 @@ public class MainWindowLogic : ScriptableObject
         PreparedPixels = null;
         NufliBytes = null;
         FreeCycles = null;
+        ViceBridgeEnabled = false;
     }
 
     private static void DestroyImage(ref Texture2D image)
@@ -192,6 +196,7 @@ public class MainWindowLogic : ScriptableObject
 
     private IEnumerable ImageConversionPipeline()
     {
+        _pipelineStage = ConversionPipelineStage.Idle;
         while (true)
         {
             if (_pipelineStage == ConversionPipelineStage.Idle)
