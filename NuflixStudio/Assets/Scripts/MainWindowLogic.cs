@@ -98,6 +98,12 @@ public class MainWindowLogic : ScriptableObject
         _converterPane.Init(this, root, _paletteMappingEntryTemplate);
         _editorPane.Init(this, root, _editorPaneAssets);
 
+        if (!SystemInfo.supportsComputeShaders)
+        {
+            _errorLabel.text = "This platform doesn't support compute shaders.\nThe converter cannot work without them.";
+            _errorLabel.style.display = DisplayStyle.Flex;
+        }
+
 #if UNITY_EDITOR
         if (Application.isPlaying)
         {
