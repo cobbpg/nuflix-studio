@@ -1,0 +1,43 @@
+#
+# VICE Palette file
+#
+# Syntax:
+# Red Green Blue
+#
+# VIC-II palette based on http://www.colodore.com/
+#
+# TYPE:VICII
+# NAME:Colodore VIC2 (PAL)
+
+# Black
+00 00 00
+# White
+ff ff ff
+# Red
+81 33 38
+# Cyan
+75 ce c8
+# Purple
+8e 3c 97
+# Green
+56 ac 4d
+# Blue
+2e 2c 9b
+# Yellow
+ed f1 71
+# Orange
+8e 50 29
+# Brown
+55 38 00
+# Light Red
+c4 6c 71
+# Dark Gray
+4a 4a 4a
+# Medium Gray
+7b 7b 7b
+# Light Green
+a9 ff 9f
+# Light Blue
+70 6d eb
+# Light Gray
+b2 b2 b2

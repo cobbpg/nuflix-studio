@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using Unity.Collections;
 using Unity.Mathematics;
 using UnityEngine;
+using static Constants;
 using static Unity.Mathematics.math;
 
 [Serializable]
@@ -71,6 +73,10 @@ public class ConversionProfile
         var existingTargetIndices = TargetIndices;
         SourceColors = new Color32[count];
         TargetIndices = new int[count];
+        if (count <= PaletteSize && TryMatchC64Palette(colors))
+        {
+            return;
+        }
         var i = 0;
         foreach (var (color, _) in ordering.OrderBy(entry => entry.Value))
         {
@@ -81,6 +87,52 @@ public class ConversionProfile
             i++;
         }
     }
+
+    public bool TryMatchC64Palette(HashSet<Color32> colors)
+    {
+        foreach (var file in Directory.GetFiles($"{MainWindowLogic.SettingsDir}/c64-palettes", "*.vpl"))
+        {
+            try
+            {
+                var palette = Palette.ReadFromVpl(file);
+                var matches = new Dictionary<Color32, (int, int)>();
+                foreach (var color in colors)
+                {
+                    var dMin = int.MaxValue;
+                    for (var i = 0; i < palette.Colors.Count; i++)
+                    {
+                        var d = ColorDistance(color, palette.Colors[i]);
+                        if (d < dMin)
+                        {
+                            dMin = d;
+                            matches[color] = (i, d);
+                        }
+                    }
+                }
+                if (matches.Values.Select(entry => entry.Item2).Max() >= 1024)
+                {
+                    continue;
+                }
+                var ci = 0;
+                foreach (var (color, (targetIndex, _)) in matches.OrderBy(entry => entry.Value.Item1))
+                {
+                    SourceColors[ci] = color;
+                    TargetIndices[ci] = targetIndex;
+                    ci++;
+                }
+                Mode = PaletteMappingMode.Manual;
+                return true;
+            }
+            catch
+            {
+                Debug.LogWarning($"Malformed C64 palette file: {file}");
+            }
+        }
+
+        return false;
+    }
+
+    private static int ColorDistance(Color32 a, Color32 b) => (a.r - b.r) * (a.r - b.r) + (a.g - b.g) * (a.g - b.g) + (a.b - b.b) * (a.b - b.b);
 
     public void RefreshTargetPalette()
     {
