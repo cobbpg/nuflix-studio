@@ -1,5 +1,25 @@
 # Changelog
 
+## 1.2 - 2025-06-28
+
+Some small fixes and quality of life improvements.
+
+### Converter
+
+* Added instant preview when hand-picking palette entries.
+* Added logic to autodetect C64 palettes in the source images and map them directly.
+
+### Editor
+
+* Fixed mouse position scaling issues on high-DPI screens.
+* Changed zoom modifier key to Cmd on macOS.
+
+### Miscellaneous
+
+* Key bindings can be defined using the characters themselves as well besides their Unity internal KeyCode names.
+* Fixed some cases of the VICE bridge not updating properly.
+* Show an error message on systems where compute shaders are not supported.
+
 ## 1.1.1 - 2025-02-02
 
 This is a bugfix release.
