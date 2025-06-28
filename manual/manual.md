@@ -44,6 +44,9 @@ Example image credits: [The Pixel Apothecary](https://x.com/pixelapothecary)
 > [!NOTE] 
 > When mapping colours, it's easiest to start with the sliders in automatic mode, then switch to manual mode and tweak the individual entries if needed.
 
+> [!NOTE] 
+> The program tries to detect source images using known C64 palettes. If successful, the mapping is switched to **Manual** and set up with the correct colours. If you come across a C64 image that's not handled correctly, please open an issue so it can be fixed. You can also add more palettes to this list; see below in the [Configuration](#configuration) section for details.
+
 > [!WARNING] 
 > It's possible that in some rare cases the code generation algorithm fails to remove enough register updates to fit into the cycle budget of a section. When this happens, the program displays an overlay saying **"Ran out of cycles in rows: Y (C/Q)!"**, where Y is the screen Y coordinate (0‒199), while C is the respective character row (0‒24) and its affected quarter (0‒3), i.e. Y ≈ C×8+Q×2. The image will have a visual artifact at this row, as the FLI bug gets delayed and pushed to the right, breaking the bitmap colours. To remedy this, some colour updates need to be removed in the neighbourhood of the offending rows.
 
@@ -135,7 +138,8 @@ Some aspects of NUFLIX Studio can be customised via the files in the [Settings](
 | File | Description |
 | --- | --- |
 | keyboard.conf | Definitions of key bindings used in the editor. The default settings are tailored to a QWERTY layout, but they can be freely changed here. |
-| palette.vpl | The actual colours used both for matching input images to the C64 palette and for the optimisation process. The default is set up to mimic the PAL emulation in VICE. This file is using the VICE palette format. |
+| palette.vpl | The actual colours used both for matching input images to the C64 palette and for the optimisation process. The default is set up to mimic the PAL emulation in VICE. This file is using the VICE palette (VPL) format. |
 | nufli-template.bin | The binary template for NUFLIX files for the portion starting from $2000. Contains the displayer code and some of the fixed data structures. The first few words are offsets to various parameters that need to be filled in during the export proccess. The source for this template is included in the [displayer](../displayer) directory. |
+| c64-palettes/\*.vpl | The C64 palettes in VPL format the converter can recognise and map automatically. Feel free to add more! |
 
 If `keyboard.conf` contains errors, the program will still start up, but the affected bindings aren't going to be active. However, a file called `nuflix-log.txt` will be created with additional information about any problems encountered.
